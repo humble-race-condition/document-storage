@@ -2,7 +2,11 @@ package com.example.springbootdemoproject;
 
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -15,23 +19,29 @@ import java.util.UUID;
  * the record is, meaning that multiple actions can be in the same transaction group.
  * If the transaction is not successful, then the record must be processed and the resource released if present.
  */
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "transaction_action_records")
 public class TransactionActionRecord {
     @Id
     @UuidGenerator
     private UUID id;
+    @Column(name = "storage_location")
     private String storageLocation;
+    @Enumerated(EnumType.STRING)
     private ActionType actionType;
     private boolean committed;
     private boolean processed;
-    private UUID transactionGroup;
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "parent_record_id", nullable = true)
     private TransactionActionRecord parentRecord;
     @OneToMany(mappedBy = "parentRecord")
     private Set<TransactionActionRecord> childActionRecords;
+    @CreatedDate
+    @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
+    @LastModifiedDate
+    @Column(nullable = false)
     private LocalDateTime modifiedAt;
 
     public String getStorageLocation() {
@@ -72,14 +82,6 @@ public class TransactionActionRecord {
 
     public void setProcessed(boolean processed) {
         this.processed = processed;
-    }
-
-    public UUID getTransactionGroup() {
-        return transactionGroup;
-    }
-
-    public void setTransactionGroup(UUID transactionGroup) {
-        this.transactionGroup = transactionGroup;
     }
 
     public TransactionActionRecord getParentRecord() {

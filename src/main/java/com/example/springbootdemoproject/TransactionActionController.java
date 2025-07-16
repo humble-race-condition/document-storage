@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @RestController
 public class TransactionActionController {
@@ -22,15 +25,24 @@ public class TransactionActionController {
     }
 
     @PostMapping
-    public TransactionActionRecord save(@RequestBody TransactionActionRecord request) {
+    public UUID save(@RequestBody TransactionActionRecord request) {
         TransactionActionRecord transactionActionRecord = new TransactionActionRecord();
         transactionActionRecord.setStorageLocation(request.getStorageLocation());
         transactionActionRecord.setActionType(request.getActionType());
         transactionActionRecord.setCommitted(false);
         transactionActionRecord.setProcessed(false);
-        transactionActionRecord.setTransactionGroup(null);
 
+        TransactionActionRecord childRecord = new TransactionActionRecord();
+        childRecord.setStorageLocation(request.getStorageLocation());
+        childRecord.setActionType(ActionType.DELETE);
+        childRecord.setCommitted(false);
+        childRecord.setProcessed(false);
+        childRecord.setParentRecord(transactionActionRecord);
+
+        transactionActionRecord.setChildActionRecords(Set.of(childRecord));
+
+        repository.save(childRecord);
         
-        return repository.save(transactionActionRecord);
+        return transactionActionRecord.getId();
     }
 }
