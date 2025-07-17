@@ -1,15 +1,10 @@
 package com.example.springbootdemoproject;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 public class TransactionActionController {
@@ -44,5 +39,19 @@ public class TransactionActionController {
         repository.save(childRecord);
         
         return transactionActionRecord.getId();
+    }
+
+    @Transactional
+    @DeleteMapping
+    public void delete() {
+        List<TransactionActionRecord> all = repository.findAll();
+        Optional<TransactionActionRecord> record = all.stream().filter(x -> x.getParentRecord() == null).findFirst();
+        if (record.isPresent()) {
+            TransactionActionRecord transactionActionRecord = record.get();
+//            transactionActionRecord.getChildActionRecords().forEach(x -> x.setParentRecord(null));
+//            transactionActionRecord.setChildActionRecords(Set.of());
+
+            repository.deleteById(transactionActionRecord.getId());
+        }
     }
 }
