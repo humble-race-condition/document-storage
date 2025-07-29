@@ -21,37 +21,37 @@ public class TransactionActionController {
 
     @PostMapping
     public UUID save(@RequestBody TransactionActionRecord request) {
-        TransactionActionRecord transactionActionRecord = new TransactionActionRecord();
-        transactionActionRecord.setStorageLocation(request.getStorageLocation());
-        transactionActionRecord.setActionType(request.getActionType());
-        transactionActionRecord.setCommitted(false);
-        transactionActionRecord.setProcessed(false);
+        TransactionActionRecord parent = new TransactionActionRecord();
+        parent.setStorageLocation(request.getStorageLocation());
+        parent.setActionType(request.getActionType());
+        parent.setCommitted(false);
+        parent.setProcessed(false);
 
         TransactionActionRecord childRecord = new TransactionActionRecord();
         childRecord.setStorageLocation(request.getStorageLocation());
         childRecord.setActionType(ActionType.DELETE);
         childRecord.setCommitted(false);
         childRecord.setProcessed(false);
-        childRecord.setParentRecord(transactionActionRecord);
+//        childRecord.setParentRecord(parent);
 
-        transactionActionRecord.setChildActionRecords(Set.of(childRecord));
+        parent.setChildActionRecords(Set.of(childRecord));
 
-        repository.save(childRecord);
+        repository.save(parent);
         
-        return transactionActionRecord.getId();
+        return parent.getId();
     }
 
     @Transactional
     @DeleteMapping
     public void delete() {
         List<TransactionActionRecord> all = repository.findAll();
-        Optional<TransactionActionRecord> record = all.stream().filter(x -> x.getParentRecord() == null).findFirst();
+        Optional<TransactionActionRecord> record = all.stream().filter(x -> x.getParentRecord() != null).findFirst();
         if (record.isPresent()) {
             TransactionActionRecord transactionActionRecord = record.get();
 //            transactionActionRecord.getChildActionRecords().forEach(x -> x.setParentRecord(null));
 //            transactionActionRecord.setChildActionRecords(Set.of());
 
-            repository.deleteById(transactionActionRecord.getId());
+            repository.delete(transactionActionRecord);
         }
     }
 }

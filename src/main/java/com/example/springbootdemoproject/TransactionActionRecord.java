@@ -32,10 +32,10 @@ public class TransactionActionRecord {
     private ActionType actionType;
     private boolean committed;
     private boolean processed;
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(cascade = {})
     @JoinColumn(name = "parent_record_id", nullable = true)
     private TransactionActionRecord parentRecord;
-    @OneToMany(mappedBy = "parentRecord", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "parentRecord", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<TransactionActionRecord> childActionRecords;
     @CreatedDate
     @Column(updatable = false, nullable = false)
