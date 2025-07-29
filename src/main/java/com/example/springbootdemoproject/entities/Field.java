@@ -14,6 +14,11 @@ public class Field {
     private int id;
     private String Name;
     private String Value;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "data_record_id", nullable = false)
+    private DataRecord dataRecord;
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;

@@ -12,6 +12,13 @@ public class Section {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    private String storageLocation;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "data_record_id", nullable = false)
+    private DataRecord dataRecord;
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
