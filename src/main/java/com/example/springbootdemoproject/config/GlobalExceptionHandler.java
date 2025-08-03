@@ -1,25 +1,30 @@
 package com.example.springbootdemoproject.config;
 
+import com.example.springbootdemoproject.util.ErrorCode;
+import com.example.springbootdemoproject.util.ErrorDetails;
+import com.example.springbootdemoproject.util.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .collect(Collectors.toMap(FieldError::getField, error -> Optional.ofNullable(error.getDefaultMessage()).orElse("")));
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        List<ErrorDetails> errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(x -> new ErrorDetails(ErrorCode.INVALID_CLIENT_INPUT, x.getDefaultMessage()))
+                .toList();
+        String path = Optional.ofNullable(request.getRequestURI()).orElse("");
+        ErrorResponse errorResponse = new ErrorResponse(errors, path, LocalDateTime.now());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

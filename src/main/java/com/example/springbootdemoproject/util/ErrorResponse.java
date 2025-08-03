@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ErrorResponse(
-        List<ErrorDetails> errorInfo,
+        List<ErrorDetails> errors,
         String path,
-        LocalDateTime timestamp
-        ) {}
+        LocalDateTime timestamp) {
+}

@@ -9,4 +9,5 @@ public record FieldInfo(
         String name,
         @NotBlank(message = "The field value must not be blank")
         @Length(min = 2, max = 20, message = "The field value must be between {min} and {max}")
-        String value) {}
+        String value) {
+}
