@@ -1,6 +1,6 @@
-package com.example.springbootdemoproject.features.documents;
+package com.example.springbootdemoproject.features.datarecords;
 
-public interface DocumentService {
+public interface DataRecordService {
     /**
      * Creats a data record
      * @param request

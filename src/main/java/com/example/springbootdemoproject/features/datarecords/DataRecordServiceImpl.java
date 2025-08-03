@@ -1,9 +1,9 @@
-package com.example.springbootdemoproject.features.documents;
+package com.example.springbootdemoproject.features.datarecords;
 
 import org.springframework.stereotype.Service;
 
 @Service
-public class DocumentServiceImpl implements DocumentService {
+public class DataRecordServiceImpl implements DataRecordService {
 
     /**
      * Creats a data record
