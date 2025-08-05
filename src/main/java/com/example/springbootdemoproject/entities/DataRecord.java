@@ -13,12 +13,13 @@ import java.util.List;
 @Table(name = "data_records")
 @EntityListeners(AuditingEntityListener.class)
 public class DataRecord {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String Title;
+    private String title;
+
+    private String description;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, mappedBy = "dataRecord")
     private List<Field> fields = new ArrayList<>();
@@ -29,6 +30,7 @@ public class DataRecord {
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
@@ -47,11 +49,19 @@ public class DataRecord {
     }
 
     public String getTitle() {
-        return Title;
+        return title;
     }
 
     public void setTitle(String title) {
-        Title = title;
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<Field> getFields() {

@@ -14,7 +14,9 @@ public class Field {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String Name;
+
     private String Value;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -24,6 +26,7 @@ public class Field {
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
