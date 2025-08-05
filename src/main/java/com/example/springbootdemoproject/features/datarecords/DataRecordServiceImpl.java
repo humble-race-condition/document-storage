@@ -40,8 +40,8 @@ public class DataRecordServiceImpl implements DataRecordService {
                 })
                 .toList();
         DataRecord record = new DataRecord();
-        record.setTitle(record.getTitle());
-        record.setDescription(record.getDescription());
+        record.setTitle(request.title());
+        record.setDescription(request.description());
         fields.forEach(record::addField);
 
         record = dataRecordRepository.saveAndFlush(record);
