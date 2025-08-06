@@ -2,6 +2,7 @@ package com.example.springbootdemoproject.features.datarecords;
 
 import com.example.springbootdemoproject.features.datarecords.requests.CreateDataRecordRequest;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
+import com.example.springbootdemoproject.features.datarecords.requests.UpdateFieldsRequest;
 import com.example.springbootdemoproject.features.datarecords.responses.DataRecordDetail;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,24 @@ public class DataRecordController {
 
     @PutMapping("{id}")
     public ResponseEntity<DataRecordDetail> updateDataRecord(@PathVariable int id, @Valid @RequestBody UpdateDataRecordRequest request) {
+        DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
+        return ResponseEntity.ok().body(dataRecord);
+    }
+
+    /**
+     * Adds new fields or overrides existing fields
+     * @param id
+     * @param request
+     * @return
+     */
+    @PutMapping("/{id}/fields")
+    public ResponseEntity<DataRecordDetail> addFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
+        DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
+        return ResponseEntity.ok().body(dataRecord);
+    }
+
+    @DeleteMapping("/{id}/fields")
+    public ResponseEntity<DataRecordDetail> removeFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
         DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
         return ResponseEntity.ok().body(dataRecord);
     }
