@@ -27,6 +27,9 @@ public class DataRecord {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, mappedBy = "dataRecord")
     private List<Section> sections;
 
+    @Version
+    private long version;
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
@@ -38,6 +41,11 @@ public class DataRecord {
     public void addField(Field field) {
         field.setDataRecord(this);
         fields.add(field);
+    }
+
+    public void removeField(Field field) {
+        field.setDataRecord(null);
+        fields.remove(field);
     }
 
     public int getId() {
@@ -78,6 +86,14 @@ public class DataRecord {
 
     public void setSections(List<Section> sections) {
         this.sections = sections;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
     }
 
     public LocalDateTime getCreatedAt() {

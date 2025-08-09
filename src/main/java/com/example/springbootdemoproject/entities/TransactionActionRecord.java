@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -26,20 +27,31 @@ public class TransactionActionRecord {
     @Id
     @UuidGenerator
     private UUID id;
+
     @Column(name = "storage_location")
     private String storageLocation;
+
     @Enumerated(EnumType.STRING)
     private ActionType actionType;
+
     private boolean committed;
+
     private boolean processed;
+
     @ManyToOne(cascade = {})
     @JoinColumn(name = "parent_record_id", nullable = true)
     private TransactionActionRecord parentRecord;
+
     @OneToMany(mappedBy = "parentRecord", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<TransactionActionRecord> childActionRecords;
+
+    @Version
+    private long version;
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime modifiedAt;

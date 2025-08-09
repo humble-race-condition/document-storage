@@ -23,6 +23,9 @@ public class Field {
     @JoinColumn(name = "data_record_id", nullable = false)
     private DataRecord dataRecord;
 
+    @Version
+    private long version;
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
@@ -61,6 +64,14 @@ public class Field {
 
     public void setDataRecord(DataRecord dataRecord) {
         this.dataRecord = dataRecord;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
     }
 
     public LocalDateTime getCreatedAt() {

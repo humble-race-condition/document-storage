@@ -3,6 +3,7 @@ package com.example.springbootdemoproject.features.datarecords;
 import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Field;
 import com.example.springbootdemoproject.features.datarecords.requests.CreateDataRecordRequest;
+import com.example.springbootdemoproject.features.datarecords.requests.RemoveFieldsRequest;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateFieldsRequest;
 import com.example.springbootdemoproject.features.datarecords.responses.DataRecordDetail;
@@ -25,11 +26,6 @@ public class DataRecordServiceImpl implements DataRecordService {
         this.dataRecordRepository = dataRecordRepository;
     }
 
-    /**
-     * Creates a data record with the specified fields
-     * @param request {@link CreateDataRecordRequest} The request for the data record
-     * @return the data record details
-     */
     @Override
     public DataRecordDetail createDataRecord(CreateDataRecordRequest request) {
         validateRequest(request);
@@ -60,12 +56,6 @@ public class DataRecordServiceImpl implements DataRecordService {
         return dataRecordDetail;
     }
 
-    /**
-     * Updated the data record
-     * @param id of the data record
-     * @param request {@link UpdateDataRecordRequest} The modified values
-     * @return {@link UpdateDataRecordRequest} the updated DataRecordDetails
-     */
     @Override
     public DataRecordDetail updateDataRecord(int id, UpdateDataRecordRequest request) {
         validateRequest(request);
@@ -87,12 +77,6 @@ public class DataRecordServiceImpl implements DataRecordService {
         return dataRecordDetail;
     }
 
-    /**
-     * Updated the data record
-     * @param id of the data record
-     * @param request {@link UpdateDataRecordRequest} The modified values
-     * @return {@link UpdateDataRecordRequest} the updated DataRecordDetails
-     */
     @Override
     public DataRecordDetail updateDataRecordFields(int id, UpdateFieldsRequest request) {
         validateRequest(request);
@@ -124,6 +108,33 @@ public class DataRecordServiceImpl implements DataRecordService {
         return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
 
+    @Override
+    public DataRecordDetail removeDataRecord(int id, RemoveFieldsRequest request) {
+        validateRequest(request);
+
+        Optional<DataRecord> dataRecordOptional = dataRecordRepository.findById(id);
+        if (dataRecordOptional.isEmpty()) {
+            logger.error("Data record with id \"{}\" not found for data record field remove", id);
+            throw new InvalidClientInputException();
+        }
+
+        //ToDo add logic for unique field name constraints. unique index by datarecord id and field name. This way, only
+        //one field of the same name can be added to a specific data record
+        DataRecord dataRecord = dataRecordOptional.get();
+        for (String fieldName : request.fieldNames()) {
+            dataRecord.getFields().stream()
+                    .filter(f -> f.getName().equals(fieldName))
+                    .findFirst()
+                    .ifPresent(dataRecord::removeField);
+        }
+
+        List<FieldDetail> fieldDetails = dataRecord.getFields().stream()
+                .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
+                .toList();
+
+        return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
+    }
+
     private void addFieldToDataRecord(DataRecord dataRecord, FieldInfo requestField) {
         Field field = new Field();
         field.setName(requestField.name());
@@ -135,6 +146,10 @@ public class DataRecordServiceImpl implements DataRecordService {
         Field existingField = existingFieldsByName.get(requestField.name());
         existingField.setName(requestField.name());
         existingField.setValue(requestField.value());
+    }
+
+    private void validateRequest(RemoveFieldsRequest request) {
+        Objects.requireNonNull(request);
     }
 
     private void validateRequest(UpdateFieldsRequest request) {
