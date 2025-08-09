@@ -63,6 +63,6 @@ public class DataRecordController {
     @DeleteMapping("/{id}/fields")
     public ResponseEntity<DataRecordDetail> removeFields(@PathVariable int id, @Valid @RequestBody RemoveFieldsRequest request) {
         DataRecordDetail dataRecord = dataRecordService.removeDataRecord(id, request);
-        return ResponseEntity.ok().body(null);
+        return ResponseEntity.ok().body(dataRecord);
     }
 }

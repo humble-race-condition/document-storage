@@ -8,5 +8,5 @@ import java.util.List;
 public record RemoveFieldsRequest(
         @NotNull
         @Valid
-        List<String> fieldNames) {
+        List<String> fields) {
 }

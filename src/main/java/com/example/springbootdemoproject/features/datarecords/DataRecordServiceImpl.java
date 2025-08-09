@@ -121,12 +121,14 @@ public class DataRecordServiceImpl implements DataRecordService {
         //ToDo add logic for unique field name constraints. unique index by datarecord id and field name. This way, only
         //one field of the same name can be added to a specific data record
         DataRecord dataRecord = dataRecordOptional.get();
-        for (String fieldName : request.fieldNames()) {
+        for (String fieldName : request.fields()) {
             dataRecord.getFields().stream()
                     .filter(f -> f.getName().equals(fieldName))
                     .findFirst()
                     .ifPresent(dataRecord::removeField);
         }
+
+        dataRecord = dataRecordRepository.saveAndFlush(dataRecord);
 
         List<FieldDetail> fieldDetails = dataRecord.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
