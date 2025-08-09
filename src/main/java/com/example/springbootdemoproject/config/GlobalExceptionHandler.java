@@ -1,8 +1,8 @@
 package com.example.springbootdemoproject.config;
 
-import com.example.springbootdemoproject.util.ErrorCode;
-import com.example.springbootdemoproject.util.ErrorDetails;
-import com.example.springbootdemoproject.util.ErrorResponse;
+import com.example.springbootdemoproject.util.errorresponse.ErrorCode;
+import com.example.springbootdemoproject.util.errorresponse.ErrorDetails;
+import com.example.springbootdemoproject.util.errorresponse.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

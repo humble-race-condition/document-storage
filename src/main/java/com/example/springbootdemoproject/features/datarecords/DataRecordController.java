@@ -32,19 +32,19 @@ public class DataRecordController {
 
     /**
      * Adds new fields or overrides existing fields
-     * @param id
-     * @param request
-     * @return
+     * @param id the data record identifier
+     * @param request the data record updated fields
+     * @return the updated data record
      */
     @PutMapping("/{id}/fields")
     public ResponseEntity<DataRecordDetail> addFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
-        DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
-        return ResponseEntity.ok().body(dataRecord);
+//        DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
+        return ResponseEntity.ok().body(null);
     }
 
     @DeleteMapping("/{id}/fields")
     public ResponseEntity<DataRecordDetail> removeFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
-        DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
-        return ResponseEntity.ok().body(dataRecord);
+//        DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
+        return ResponseEntity.ok().body(null);
     }
 }

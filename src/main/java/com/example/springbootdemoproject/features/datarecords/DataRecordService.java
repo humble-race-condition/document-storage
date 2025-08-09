@@ -7,8 +7,7 @@ import com.example.springbootdemoproject.features.datarecords.responses.DataReco
 public interface DataRecordService {
     /**
      * Creates a data record with the specified fields
-     *
-     * @param request The request for the data record
+     * @param request {@link CreateDataRecordRequest} The request for the data record
      * @return the data record details
      */
     DataRecordDetail createDataRecord(CreateDataRecordRequest request);

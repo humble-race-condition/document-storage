@@ -1,5 +1,6 @@
 package com.example.springbootdemoproject;
 
+import com.example.springbootdemoproject.entities.TransactionActionRecord;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;

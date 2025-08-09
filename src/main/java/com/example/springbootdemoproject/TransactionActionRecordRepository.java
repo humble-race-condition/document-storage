@@ -1,5 +1,6 @@
 package com.example.springbootdemoproject;
 
+import com.example.springbootdemoproject.entities.TransactionActionRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,8 +1,8 @@
-package com.example.springbootdemoproject;
+package com.example.springbootdemoproject.entities;
 
 
+import com.example.springbootdemoproject.ActionType;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

@@ -6,6 +6,9 @@ import com.example.springbootdemoproject.features.datarecords.requests.CreateDat
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
 import com.example.springbootdemoproject.features.datarecords.responses.DataRecordDetail;
 import com.example.springbootdemoproject.features.datarecords.responses.FieldDetail;
+import com.example.springbootdemoproject.util.exceptions.InvalidClientInputException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.Optional;
 
 @Service
 public class DataRecordServiceImpl implements DataRecordService {
+    private static final Logger logger = LoggerFactory.getLogger(DataRecordServiceImpl.class);
 
     private final DataRecordRepository dataRecordRepository;
 
@@ -23,8 +27,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
     /**
      * Creates a data record with the specified fields
-     *
-     * @param request The request for the data record
+     * @param request {@link CreateDataRecordRequest} The request for the data record
      * @return the data record details
      */
     @Override
@@ -50,10 +53,10 @@ public class DataRecordServiceImpl implements DataRecordService {
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
                 .toList();
 
-
         DataRecordDetail dataRecordDetail = DataRecordDetail
                 .withFields(record.getId(), record.getTitle(), record.getDescription(), fieldDetails);
 
+        logger.info("Data record with id {} created", dataRecordDetail.id());
         return dataRecordDetail;
     }
 
@@ -65,13 +68,12 @@ public class DataRecordServiceImpl implements DataRecordService {
      */
     @Override
     public DataRecordDetail updateDataRecord(int id, UpdateDataRecordRequest request) {
-        Objects.requireNonNull(request);
-        Objects.requireNonNull(request.title());
-        Objects.requireNonNull(request.description());
+        validateRequest(request);
 
         Optional<DataRecord> dataRecord = dataRecordRepository.findById(id);
         if (dataRecord.isEmpty()) {
-            throw new RuntimeException();
+            logger.error("Data record with id {} not found", id);
+            throw new InvalidClientInputException();
         }
 
         dataRecord.get().setTitle(request.title());
@@ -80,10 +82,16 @@ public class DataRecordServiceImpl implements DataRecordService {
         dataRecordRepository.saveAndFlush(dataRecord.get());
 
         DataRecordDetail dataRecordDetail = DataRecordDetail.fromBase(id, request.title(), request.description());
+
+        logger.info("Data record with id {} updated", dataRecordDetail.id());
         return dataRecordDetail;
     }
 
-
+    private static void validateRequest(UpdateDataRecordRequest request) {
+        Objects.requireNonNull(request);
+        Objects.requireNonNull(request.title());
+        Objects.requireNonNull(request.description());
+    }
 
     private static void validateRequest(CreateDataRecordRequest request) {
         Objects.requireNonNull(request);
