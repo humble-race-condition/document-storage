@@ -38,8 +38,8 @@ public class DataRecordController {
      */
     @PutMapping("/{id}/fields")
     public ResponseEntity<DataRecordDetail> addFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
-//        DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
-        return ResponseEntity.ok().body(null);
+        DataRecordDetail dataRecord = dataRecordService.updateDataRecordFields(id, request);
+        return ResponseEntity.ok().body(dataRecord);
     }
 
     @DeleteMapping("/{id}/fields")

@@ -2,6 +2,7 @@ package com.example.springbootdemoproject.features.datarecords;
 
 import com.example.springbootdemoproject.features.datarecords.requests.CreateDataRecordRequest;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
+import com.example.springbootdemoproject.features.datarecords.requests.UpdateFieldsRequest;
 import com.example.springbootdemoproject.features.datarecords.responses.DataRecordDetail;
 
 public interface DataRecordService {
@@ -19,4 +20,12 @@ public interface DataRecordService {
      * @return {@link UpdateDataRecordRequest} the updated DataRecordDetails
      */
     DataRecordDetail updateDataRecord(int id, UpdateDataRecordRequest request);
+
+    /**
+     * Updated the data record
+     * @param id of the data record
+     * @param request {@link UpdateDataRecordRequest} The modified values
+     * @return {@link UpdateDataRecordRequest} the updated DataRecordDetails
+     */
+    DataRecordDetail updateDataRecordFields(int id, UpdateFieldsRequest request);
 }
