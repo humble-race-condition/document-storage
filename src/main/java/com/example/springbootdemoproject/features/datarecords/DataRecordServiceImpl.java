@@ -8,7 +8,7 @@ import com.example.springbootdemoproject.features.datarecords.requests.UpdateDat
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateFieldsRequest;
 import com.example.springbootdemoproject.features.datarecords.responses.DataRecordDetail;
 import com.example.springbootdemoproject.features.datarecords.responses.FieldDetail;
-import com.example.springbootdemoproject.util.exceptions.InvalidClientInputException;
+import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

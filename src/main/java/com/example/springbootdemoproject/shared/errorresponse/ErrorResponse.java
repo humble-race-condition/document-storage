@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.util.errorresponse;
+package com.example.springbootdemoproject.shared.errorresponse;
 
 
 import java.time.LocalDateTime;
