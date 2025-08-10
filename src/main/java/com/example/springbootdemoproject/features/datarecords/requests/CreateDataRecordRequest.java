@@ -1,6 +1,6 @@
 package com.example.springbootdemoproject.features.datarecords.requests;
 
-import com.example.springbootdemoproject.features.datarecords.FieldInfo;
+import com.example.springbootdemoproject.shared.base.models.requests.FieldInfo;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

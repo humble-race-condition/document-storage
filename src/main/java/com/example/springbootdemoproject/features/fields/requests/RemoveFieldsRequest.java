@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.features.datarecords.requests;
+package com.example.springbootdemoproject.features.fields.requests;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

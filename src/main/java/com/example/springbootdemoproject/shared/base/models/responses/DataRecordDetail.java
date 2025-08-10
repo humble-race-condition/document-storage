@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.features.datarecords.responses;
+package com.example.springbootdemoproject.shared.base.models.responses;
 
 import java.util.List;
 

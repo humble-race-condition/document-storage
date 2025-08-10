@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.features.datarecords;
+package com.example.springbootdemoproject.shared.base.models.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
