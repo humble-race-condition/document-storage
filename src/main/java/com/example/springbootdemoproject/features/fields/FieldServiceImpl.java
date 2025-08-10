@@ -10,6 +10,7 @@ import com.example.springbootdemoproject.shared.base.models.responses.FieldDetai
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class FieldServiceImpl implements FieldService {
     private static final Logger logger = LoggerFactory.getLogger(FieldServiceImpl.class);
     private final DataRecordRepository dataRecordRepository;
 
-    public FieldServiceImpl(DataRecordRepository dataRecordRepository) {
+    public FieldServiceImpl(@Qualifier("fieldDataRecordRepository") DataRecordRepository dataRecordRepository) {
         this.dataRecordRepository = dataRecordRepository;
     }
 

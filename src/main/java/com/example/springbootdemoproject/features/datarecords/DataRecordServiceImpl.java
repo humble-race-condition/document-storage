@@ -9,6 +9,7 @@ import com.example.springbootdemoproject.shared.base.models.responses.FieldDetai
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,7 +20,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
     private final DataRecordRepository dataRecordRepository;
 
-    public DataRecordServiceImpl(DataRecordRepository dataRecordRepository) {
+    public DataRecordServiceImpl(@Qualifier("dataRecordRepository") DataRecordRepository dataRecordRepository) {
         this.dataRecordRepository = dataRecordRepository;
     }
 

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/data-records")
+@RequestMapping("/api/data-records/{id}/fields")
 public class FieldController {
     private final FieldService fieldService;
 
@@ -22,7 +22,7 @@ public class FieldController {
      * @param request {@link UpdateFieldsRequest} the data record updated fields
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
-    @PutMapping("/{id}/fields")
+    @PutMapping
     public ResponseEntity<DataRecordDetail> addFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
         DataRecordDetail dataRecord = fieldService.updateDataRecordFields(id, request);
         return ResponseEntity.ok().body(dataRecord);
@@ -34,7 +34,7 @@ public class FieldController {
      * @param request {@link RemoveFieldsRequest} The fields to be removed
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
-    @DeleteMapping("/{id}/fields")
+    @DeleteMapping
     public ResponseEntity<DataRecordDetail> removeFields(@PathVariable int id, @Valid @RequestBody RemoveFieldsRequest request) {
         DataRecordDetail dataRecord = fieldService.removeDataRecordFields(id, request);
         return ResponseEntity.ok().body(dataRecord);
