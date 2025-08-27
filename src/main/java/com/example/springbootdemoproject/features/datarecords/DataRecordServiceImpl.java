@@ -24,6 +24,11 @@ public class DataRecordServiceImpl implements DataRecordService {
         this.dataRecordRepository = dataRecordRepository;
     }
 
+    //ToDo Soft Delete on datarecords
+    //ToDo unique for fields, and add a check
+    //ToDo add flyway sometime, but for now, its easier this way
+    //ToDo add file cabinets
+
     @Override
     public DataRecordDetail createDataRecord(CreateDataRecordRequest request) {
         validateRequest(request);
