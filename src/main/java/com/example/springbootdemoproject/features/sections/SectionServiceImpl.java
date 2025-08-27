@@ -3,6 +3,8 @@ package com.example.springbootdemoproject.features.sections;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 @Service
 public class SectionServiceImpl implements SectionService {
     /**
@@ -16,7 +18,13 @@ public class SectionServiceImpl implements SectionService {
 
         // Example: save it to disk
         try {
-            section.transferTo(new java.io.File("tmp/" + fileName));
+            String baseFolder = System.getProperty("user.dir") + "/files/";
+            File file = new File(baseFolder + fileName);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            section.transferTo(file);
         } catch (Exception e) {
             return e.getMessage();
         }
