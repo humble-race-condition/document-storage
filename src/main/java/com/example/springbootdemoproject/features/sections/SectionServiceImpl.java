@@ -1,34 +1,74 @@
 package com.example.springbootdemoproject.features.sections;
 
+import com.example.springbootdemoproject.entities.DataRecord;
+import com.example.springbootdemoproject.entities.Section;
+import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
+import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
+import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 @Service
 public class SectionServiceImpl implements SectionService {
+
+    private final SectionRepository sectionRepository;
+    private final String basePath;
+
+    public SectionServiceImpl(
+            SectionRepository sectionRepository,
+            @Value("${document.storage.path}") String basePath) {
+        this.sectionRepository = sectionRepository;
+        this.basePath = basePath;
+    }
+
     /**
-     * @param section
-     * @return
+     * Uploads a section to the specified
+     *
+     * @param dataRecordId the data record to whitch the section is attached
+     * @param sectionFile  the binary file that will be uploaded
+     * @return Returns the id of the newly uploaded section
      */
     @Override
-    public String uploadSection(MultipartFile section) {
-        String fileName = section.getOriginalFilename();
-        long size = section.getSize();
+    public DataRecordDetail uploadSection(int dataRecordId, MultipartFile sectionFile) {
+        DataRecord dataRecord = sectionRepository
+                .findById(dataRecordId)
+                .orElseThrow(InvalidClientInputException::new);
 
-        // Example: save it to disk
+        String fileName = sectionFile.getOriginalFilename();
+        Path storagePath = Paths.get(basePath);
         try {
-            String baseFolder = System.getProperty("user.dir") + "/files/";
-            File file = new File(baseFolder + fileName);
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
+            Files.createDirectories(storagePath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Path filePath = Paths.get(basePath, fileName);
 
-            section.transferTo(file);
+        Section sectionRecord = new Section();
+        sectionRecord.setFileName(sectionFile.getOriginalFilename());
+        sectionRecord.setStorageLocation(filePath.toString());
+        dataRecord.addSection(sectionRecord);
+
+        try {
+            sectionFile.transferTo(filePath);
         } catch (Exception e) {
-            return e.getMessage();
+            throw new RuntimeException(e);
         }
 
-        return "ok";
+        dataRecord = sectionRepository.saveAndFlush(dataRecord);
+
+        List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
+                .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
+                .toList();
+
+        DataRecordDetail recordDetail = DataRecordDetail
+                .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
+        return recordDetail;
     }
 }

@@ -10,7 +10,6 @@ import com.example.springbootdemoproject.shared.base.models.responses.FieldDetai
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,17 +21,17 @@ import java.util.stream.Collectors;
 @Service
 public class FieldServiceImpl implements FieldService {
     private static final Logger logger = LoggerFactory.getLogger(FieldServiceImpl.class);
-    private final DataRecordRepository dataRecordRepository;
+    private final FieldRepository fieldRepository;
 
-    public FieldServiceImpl(@Qualifier("fieldDataRecordRepository") DataRecordRepository dataRecordRepository) {
-        this.dataRecordRepository = dataRecordRepository;
+    public FieldServiceImpl(FieldRepository fieldRepository) {
+        this.fieldRepository = fieldRepository;
     }
 
     @Override
     public DataRecordDetail updateDataRecordFields(int id, UpdateFieldsRequest request) {
         validateRequest(request);
 
-        Optional<DataRecord> dataRecordOptional = dataRecordRepository.findById(id);
+        Optional<DataRecord> dataRecordOptional = fieldRepository.findById(id);
         if (dataRecordOptional.isEmpty()) {
             logger.error("Data record with id \"{}\" not found for data record field update", id);
             throw new InvalidClientInputException();
@@ -54,7 +53,7 @@ public class FieldServiceImpl implements FieldService {
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
                 .toList();
 
-        dataRecord = dataRecordRepository.saveAndFlush(dataRecord);
+        dataRecord = fieldRepository.saveAndFlush(dataRecord);
         logger.info("Data record with id \"{}\" updated fields", id);
         return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
@@ -63,7 +62,7 @@ public class FieldServiceImpl implements FieldService {
     public DataRecordDetail removeDataRecordFields(int id, RemoveFieldsRequest request) {
         validateRequest(request);
 
-        Optional<DataRecord> dataRecordOptional = dataRecordRepository.findById(id);
+        Optional<DataRecord> dataRecordOptional = fieldRepository.findById(id);
         if (dataRecordOptional.isEmpty()) {
             logger.error("Data record with id \"{}\" not found for data record field remove", id);
             throw new InvalidClientInputException();
@@ -79,7 +78,7 @@ public class FieldServiceImpl implements FieldService {
                     .ifPresent(dataRecord::removeField);
         }
 
-        dataRecord = dataRecordRepository.saveAndFlush(dataRecord);
+        dataRecord = fieldRepository.saveAndFlush(dataRecord);
 
         List<FieldDetail> fieldDetails = dataRecord.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))

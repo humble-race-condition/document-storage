@@ -48,6 +48,11 @@ public class DataRecord {
         fields.remove(field);
     }
 
+    public void addSection(Section section) {
+        section.setDataRecord(this);
+        sections.add(section);
+    }
+
     public int getId() {
         return id;
     }
