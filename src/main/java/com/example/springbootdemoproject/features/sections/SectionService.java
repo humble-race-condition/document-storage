@@ -5,4 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface SectionService {
     DataRecordDetail uploadSection(int dataRecordId, MultipartFile sectionFile);
+
+    DataRecordDetail deleteSection(int dataRecordId, int sectionId);
 }

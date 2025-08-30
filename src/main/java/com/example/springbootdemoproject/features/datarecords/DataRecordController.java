@@ -34,7 +34,7 @@ public class DataRecordController {
      * @param request {@link UpdateDataRecordRequest} The modified values
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<DataRecordDetail> updateDataRecord(@PathVariable int id, @Valid @RequestBody UpdateDataRecordRequest request) {
         DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
         return ResponseEntity.ok().body(dataRecord);

@@ -23,4 +23,10 @@ public class SectionController {
         DataRecordDetail recordDetail = sectionService.uploadSection(dataRecordId, sectionFile);
         return ResponseEntity.ok(recordDetail);
     }
+
+    @DeleteMapping("/{sectionId}")
+    public ResponseEntity<DataRecordDetail> deleteSection(@PathVariable int dataRecordId, @PathVariable int sectionId) {
+        DataRecordDetail recordDetail = sectionService.deleteSection(dataRecordId, sectionId);
+        return ResponseEntity.ok(recordDetail);
+    }
 }

@@ -24,7 +24,7 @@ public class DataRecord {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "dataRecord")
     private List<Field> fields = new ArrayList<>();
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, mappedBy = "dataRecord")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "dataRecord")
     private List<Section> sections;
 
     @Version
@@ -51,6 +51,11 @@ public class DataRecord {
     public void addSection(Section section) {
         section.setDataRecord(this);
         sections.add(section);
+    }
+
+    public void removeSection(Section section) {
+        section.setDataRecord(null);
+        sections.remove(section);
     }
 
     public int getId() {

@@ -29,9 +29,8 @@ public class SectionServiceImpl implements SectionService {
     }
 
     /**
-     * Uploads a section to the specified
-     *
-     * @param dataRecordId the data record to whitch the section is attached
+     * Uploads a section to the specified data record
+     * @param dataRecordId the data record to which the section is attached
      * @param sectionFile  the binary file that will be uploaded
      * @return Returns the id of the newly uploaded section
      */
@@ -66,6 +65,31 @@ public class SectionServiceImpl implements SectionService {
         List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
                 .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
                 .toList();
+
+        DataRecordDetail recordDetail = DataRecordDetail
+                .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
+        return recordDetail;
+    }
+
+    /**
+     * Deletes a section from
+     * @param dataRecordId the id of the data record
+     * @param sectionId the id of the section
+     * @return the updated section details
+     */
+    @Override
+    public DataRecordDetail deleteSection(int dataRecordId, int sectionId) {
+        DataRecord dataRecord = sectionRepository
+                .findById(dataRecordId)
+                .orElseThrow(InvalidClientInputException::new);
+
+        dataRecord.getSections().removeIf(s -> s.getId() == sectionId);
+
+        List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
+                .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
+                .toList();
+
+        dataRecord = sectionRepository.saveAndFlush(dataRecord);
 
         DataRecordDetail recordDetail = DataRecordDetail
                 .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
