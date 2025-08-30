@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SectionServiceImpl implements SectionService {
@@ -83,7 +84,23 @@ public class SectionServiceImpl implements SectionService {
                 .findById(dataRecordId)
                 .orElseThrow(InvalidClientInputException::new);
 
-        dataRecord.getSections().removeIf(s -> s.getId() == sectionId);
+        List<Section> sections = dataRecord.getSections()
+                .stream()
+                .filter(s -> s.getId() == sectionId)
+                .toList();
+
+        if (sections.size() != 1) {
+            throw new InvalidClientInputException();
+        }
+
+        Section removedSection = sections.getFirst();
+        try {
+            Files.delete(Paths.get(removedSection.getStorageLocation()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        dataRecord.getSections().remove(removedSection);
 
         List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
                 .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
