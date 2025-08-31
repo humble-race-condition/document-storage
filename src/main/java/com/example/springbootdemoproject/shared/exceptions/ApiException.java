@@ -1,7 +1,5 @@
 package com.example.springbootdemoproject.shared.exceptions;
 
-import com.example.springbootdemoproject.shared.apimessages.ErrorMessage;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
