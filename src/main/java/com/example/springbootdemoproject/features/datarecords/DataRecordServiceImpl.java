@@ -7,6 +7,7 @@ import com.example.springbootdemoproject.features.datarecords.requests.UpdateDat
 import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
+import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,16 +66,17 @@ public class DataRecordServiceImpl implements DataRecordService {
     public DataRecordDetail updateDataRecord(int id, UpdateDataRecordRequest request) {
         validateRequest(request);
 
-        Optional<DataRecord> dataRecord = dataRecordRepository.findById(id);
-        if (dataRecord.isEmpty()) {
-            logger.error("Data record with id '{}' not found for data record update", id);
-            throw new InvalidClientInputException();
-        }
+        DataRecord dataRecord = dataRecordRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Data record with id '{}' not found for data record update", id);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.datarecords.on.datarecord.update.datarecord.not.found", id);
+                    return new InvalidClientInputException(errorMessage);
+                });
 
-        dataRecord.get().setTitle(request.title());
-        dataRecord.get().setDescription(request.description());
+        dataRecord.setTitle(request.title());
+        dataRecord.setDescription(request.description());
 
-        dataRecordRepository.saveAndFlush(dataRecord.get());
+        dataRecordRepository.saveAndFlush(dataRecord);
 
         DataRecordDetail dataRecordDetail = DataRecordDetail.fromBase(id, request.title(), request.description());
 

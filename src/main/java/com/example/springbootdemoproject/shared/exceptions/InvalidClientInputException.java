@@ -7,6 +7,6 @@ public class InvalidClientInputException extends ApiException {
     private static final int STATUS = 400;
 
     public InvalidClientInputException(ErrorMessage errorMessage) {
-        super(STATUS, errorMessage);
+        super(STATUS, errorMessage, null, null);
     }
 }
