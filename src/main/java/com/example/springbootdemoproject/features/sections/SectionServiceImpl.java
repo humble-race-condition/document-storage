@@ -7,6 +7,9 @@ import com.example.springbootdemoproject.shared.base.models.responses.DataRecord
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
+import com.example.springbootdemoproject.shared.exceptions.InvalidSystemStateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +22,7 @@ import java.util.List;
 
 @Service
 public class SectionServiceImpl implements SectionService {
+    private static final Logger logger = LoggerFactory.getLogger(SectionServiceImpl.class);
 
     private final SectionRepository sectionRepository;
     private final LocalizationService localizationService;
@@ -35,27 +39,26 @@ public class SectionServiceImpl implements SectionService {
 
     /**
      * Uploads a section to the specified data record
+     *
      * @param dataRecordId the data record to which the section is attached
      * @param sectionFile  the binary file that will be uploaded
      * @return Returns the id of the newly uploaded section
      */
     @Override
     public DataRecordDetail uploadSection(int dataRecordId, MultipartFile sectionFile) {
+        //ToDo transaction management
         DataRecord dataRecord = sectionRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id \"{}\" not found for data record field update", id);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.update.datarecord.datarecord.not.found", id);
+                    logger.error("Data record with id '{}' not found for section upload", dataRecordId);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.upload.datarecord.not.found", dataRecordId);
                     return new InvalidClientInputException(errorMessage);
                 });
 
         String fileName = sectionFile.getOriginalFilename();
         Path storagePath = Paths.get(basePath);
-        try {
-            Files.createDirectories(storagePath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        createDirectoryIfNotPresent(storagePath);
+
         Path filePath = Paths.get(basePath, fileName);
 
         Section sectionRecord = new Section();
@@ -63,11 +66,7 @@ public class SectionServiceImpl implements SectionService {
         sectionRecord.setStorageLocation(filePath.toString());
         dataRecord.addSection(sectionRecord);
 
-        try {
-            sectionFile.transferTo(filePath);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        storeSection(sectionFile, filePath);
 
         dataRecord = sectionRepository.saveAndFlush(dataRecord);
 
@@ -77,20 +76,27 @@ public class SectionServiceImpl implements SectionService {
 
         DataRecordDetail recordDetail = DataRecordDetail
                 .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
+
+        logger.info("Uploaded section '{}' to data record '{}'", sectionRecord.getId(), dataRecordId);
         return recordDetail;
     }
 
     /**
      * Deletes a section from
+     *
      * @param dataRecordId the id of the data record
-     * @param sectionId the id of the section
+     * @param sectionId    the id of the section
      * @return the updated section details
      */
     @Override
     public DataRecordDetail deleteSection(int dataRecordId, int sectionId) {
         DataRecord dataRecord = sectionRepository
                 .findById(dataRecordId)
-                .orElseThrow(InvalidClientInputException::new);
+                .orElseThrow(() -> {
+                    logger.error("Data record with id '{}' not found for section removal", dataRecordId);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.removal.datarecord.not.found", dataRecordId);
+                    return new InvalidClientInputException(errorMessage);
+                });
 
         List<Section> sections = dataRecord.getSections()
                 .stream()
@@ -98,16 +104,13 @@ public class SectionServiceImpl implements SectionService {
                 .toList();
 
         if (sections.size() != 1) {
-            throw new InvalidClientInputException();
+            logger.error("Data record with id '{}' either has zero or more than one sections with the section id '{}'", dataRecordId, sectionId);
+            ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.removal.multiple.sections", sectionId);
+            throw new InvalidClientInputException(errorMessage);
         }
 
         Section removedSection = sections.getFirst();
-        try {
-            Files.delete(Paths.get(removedSection.getStorageLocation()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        removeStoredSection(removedSection);
         dataRecord.getSections().remove(removedSection);
 
         List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
@@ -118,6 +121,39 @@ public class SectionServiceImpl implements SectionService {
 
         DataRecordDetail recordDetail = DataRecordDetail
                 .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
+
+        logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
         return recordDetail;
+    }
+
+    private void createDirectoryIfNotPresent(Path storagePath) {
+        try {
+            Files.createDirectories(storagePath);
+        } catch (IOException e) {
+            logger.error("Unable to create a base directory '{}'", basePath);
+            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
+            throw new InvalidSystemStateException(errorMessage, e);
+        }
+    }
+
+    private void storeSection(MultipartFile sectionFile, Path filePath) {
+        try {
+            sectionFile.transferTo(filePath);
+        } catch (Exception e) {
+            logger.error("Unable to store file '{}'", filePath);
+            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
+            throw new InvalidSystemStateException(errorMessage, e);
+        }
+    }
+
+    private void removeStoredSection(Section removedSection) {
+        String storageLocation = removedSection.getStorageLocation();
+        try {
+            Files.delete(Paths.get(storageLocation));
+        } catch (IOException e) {
+            logger.error("Unable to remove stored section '{}'", storageLocation);
+            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
+            throw new InvalidSystemStateException(errorMessage, e);
+        }
     }
 }
