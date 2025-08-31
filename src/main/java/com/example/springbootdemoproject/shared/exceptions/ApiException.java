@@ -14,7 +14,13 @@ public abstract class ApiException extends RuntimeException {
     private final String code;
     private final List<ApiExceptionError> errors;
 
-    protected ApiException(int status, String title, String detail, String code, List<ApiExceptionError> errors) {
+    protected ApiException(int status,
+                           String title,
+                           String detail,
+                           String code,
+                           List<ApiExceptionError> errors,
+                           Exception innerException) {
+        super(innerException);
         this.status = status;
         this.title = title;
         this.detail = detail;
@@ -22,12 +28,8 @@ public abstract class ApiException extends RuntimeException {
         this.errors = Optional.ofNullable(errors).orElse(new ArrayList<>());
     }
 
-    protected ApiException(int status, String title, String detail, String code) {
-        this(status, title, detail, code, new ArrayList<>());
-    }
-
-    protected ApiException(int status, ErrorMessage errorMessage) {
-        this(status, errorMessage.title(), errorMessage.detail(), errorMessage.code(), new ArrayList<>());
+    protected ApiException(int status, ErrorMessage errorMessage, List<ApiExceptionError> errors, Exception innerException) {
+        this(status, errorMessage.title(), errorMessage.detail(), errorMessage.code(), errors, innerException);
     }
 
     public int getStatus() {
