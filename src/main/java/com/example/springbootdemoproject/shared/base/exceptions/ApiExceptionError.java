@@ -8,10 +8,12 @@ public interface ApiExceptionError {
      * @return gets the code of the error
      */
     String getCode();
+
     /**
      * @return gets the title of the error
      */
     String getTitle();
+
     /**
      * @return gets the detail of the error
      */

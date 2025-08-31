@@ -8,6 +8,7 @@ public interface DataRecordService {
 
     /**
      * Returns a data record details by its id
+     *
      * @param id of the data record
      * @return the data record details with their sections and fields
      */
@@ -15,6 +16,7 @@ public interface DataRecordService {
 
     /**
      * Retrieves all data records filtered by the specified parameters
+     *
      * @param title       of the data record
      * @param description of the data record
      * @return the list of data record details

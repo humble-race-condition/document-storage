@@ -18,7 +18,8 @@ public class FieldController {
 
     /**
      * Adds new fields or overrides existing fields
-     * @param id the data record identifier
+     *
+     * @param id      the data record identifier
      * @param request {@link UpdateFieldsRequest} the data record updated fields
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
@@ -30,7 +31,8 @@ public class FieldController {
 
     /**
      * Remove the selected data record fields
-     * @param id of the data record
+     *
+     * @param id      of the data record
      * @param request {@link RemoveFieldsRequest} The fields to be removed
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */

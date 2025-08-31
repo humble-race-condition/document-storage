@@ -5,16 +5,17 @@ import com.example.springbootdemoproject.entities.Field;
 import com.example.springbootdemoproject.features.datarecords.requests.CreateDataRecordRequest;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
 import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
+import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
+import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
-import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
-import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DataRecordServiceImpl implements DataRecordService {
@@ -30,6 +31,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
     /**
      * Returns a data record details by its id
+     *
      * @param id of the data record
      * @return the data record details with their sections and fields
      */
@@ -58,6 +60,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
     /**
      * Retrieves all data records filtered by the specified parameters
+     *
      * @param title       of the data record
      * @param description of the data record
      * @return the list of data record details
@@ -69,7 +72,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         List<DataRecordDetail> dataRecordDetails = dataRecords.stream()
                 .map(record -> {
-                       DataRecordDetail dataRecordDetail = DataRecordDetail
+                    DataRecordDetail dataRecordDetail = DataRecordDetail
                             .fromBase(record.getId(), record.getTitle(), record.getDescription());
                     return dataRecordDetail;
                 })

@@ -3,11 +3,11 @@ package com.example.springbootdemoproject.features.sections;
 import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Section;
 import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
-import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
-import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
 import com.example.springbootdemoproject.shared.base.exceptions.InvalidSystemStateException;
+import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
+import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +39,7 @@ public class SectionServiceImpl implements SectionService {
 
     /**
      * Uploads a section to the specified data record
+     *
      * @param dataRecordId the data record to which the section is attached
      * @param sectionFile  the binary file that will be uploaded
      * @return Returns the id of the newly uploaded section
@@ -82,6 +83,7 @@ public class SectionServiceImpl implements SectionService {
 
     /**
      * Deletes a section from
+     *
      * @param dataRecordId the id of the data record
      * @param sectionId    the id of the section
      * @return the updated section details

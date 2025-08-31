@@ -17,4 +17,5 @@ public record CreateDataRecordRequest(
         String description,
         @NotNull
         @Valid
-        List<FieldInfo> fields) {}
+        List<FieldInfo> fields) {
+}

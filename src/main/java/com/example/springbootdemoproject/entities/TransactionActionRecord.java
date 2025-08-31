@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
-/** This class aims to implement the SAGA design pattern.
+/**
+ * This class aims to implement the SAGA design pattern.
  * When a transaction in one system is finished, the other system may not end with a commit and the system
  * is left in an unfinished state. This record contains information about the actions that need to take place
  * in the secondary system. It records if the transaction was successful or not. It stores from which transaction group

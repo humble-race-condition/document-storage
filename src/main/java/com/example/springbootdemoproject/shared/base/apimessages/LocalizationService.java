@@ -15,6 +15,7 @@ public interface LocalizationService {
 
     /**
      * Gets the error message title, details and code in a single object
+     *
      * @param code the code for the title is {@code code.title}. This serves as a base message. The code for the detail
      *             is {@code code.detail} and code for the error code is {@code code.code}
      * @param args arguments for formatting the string

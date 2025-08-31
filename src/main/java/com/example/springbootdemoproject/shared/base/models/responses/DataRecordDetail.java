@@ -24,8 +24,8 @@ public record DataRecordDetail(
     }
 
     public static DataRecordDetail fromBase(int id,
-                                        String title,
-                                        String description) {
+                                            String title,
+                                            String description) {
         return new DataRecordDetail(id, title, description, List.of(), List.of());
     }
 }
