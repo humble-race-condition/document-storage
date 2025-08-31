@@ -12,8 +12,14 @@ import com.example.springbootdemoproject.shared.base.models.responses.FieldDetai
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,20 +69,32 @@ public class DataRecordServiceImpl implements DataRecordService {
      *
      * @param title       of the data record
      * @param description of the data record
+     * @param page        of the request, starting from 0
+     * @param size        of the page
+     * @param sort        of the result
      * @return the list of data record details
      */
     @Override
-    public DataRecordContainerResponse getDataRecords(String title, String description) {
-        List<DataRecord> dataRecords = dataRecordRepository
-                .findAll(DataRecordSpecification.hasTitle(title).or(DataRecordSpecification.hasDescription(description)));
+    public DataRecordContainerResponse getDataRecords(String title, String description, int page, int size, String[] sort) {
+        List<Sort.Order> orders = new ArrayList<>();
+        for (String sortParam : sort) {
+            String[] parts = sortParam.split(",");
+            if (parts.length == 2) {
+                orders.add(new Sort.Order(Sort.Direction.fromString(parts[1]), parts[0]));
+            } else {
+                orders.add(new Sort.Order(Sort.Direction.ASC, parts[0]));
+            }
+        }
 
-        List<DataRecordDetail> dataRecordDetails = dataRecords.stream()
-                .map(record -> {
-                    DataRecordDetail dataRecordDetail = DataRecordDetail
-                            .fromBase(record.getId(), record.getTitle(), record.getDescription());
-                    return dataRecordDetail;
-                })
-                .toList();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+
+        Specification<DataRecord> spec = DataRecordSpecification.hasTitle(title).or(DataRecordSpecification.hasDescription(description));
+        Page<DataRecord> dataRecords = dataRecordRepository.findAll(spec, pageable);
+
+        List<DataRecordDetail> dataRecordDetails = dataRecords.stream().map(record -> {
+            DataRecordDetail dataRecordDetail = DataRecordDetail.fromBase(record.getId(), record.getTitle(), record.getDescription());
+            return dataRecordDetail;
+        }).toList();
 
         logger.info("Retrieved data record details");
         return new DataRecordContainerResponse(dataRecordDetails);

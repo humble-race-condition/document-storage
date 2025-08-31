@@ -18,12 +18,18 @@ public class DataRecordController {
 
     /**
      * Gets all data record details filtered by the query parameters
+     *
      * @return {@link DataRecordContainerResponse} the data record details
      */
     @GetMapping
-    public ResponseEntity<DataRecordContainerResponse> getDataRecords(@RequestParam(defaultValue = "") String title,
-                                                                 @RequestParam(defaultValue = "") String description) {
-        DataRecordContainerResponse dataRecords = dataRecordService.getDataRecords(title, description);
+    public ResponseEntity<DataRecordContainerResponse> getDataRecords(
+            @RequestParam(defaultValue = "") String title,
+            @RequestParam(defaultValue = "") String description,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort) {
+        //ToDo fix request body. Make it a single unified request body
+        DataRecordContainerResponse dataRecords = dataRecordService.getDataRecords(title, description, page, size, sort);
         return ResponseEntity.ok().body(dataRecords);
     }
 

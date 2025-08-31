@@ -19,9 +19,12 @@ public interface DataRecordService {
      *
      * @param title       of the data record
      * @param description of the data record
+     * @param page        of the request, starting from 0
+     * @param size        of the page
+     * @param sort        of the result
      * @return the list of data record details
      */
-    DataRecordContainerResponse getDataRecords(String title, String description);
+    DataRecordContainerResponse getDataRecords(String title, String description, int page, int size, String[] sort);
 
     DataRecordDetail createDataRecord(CreateDataRecordRequest request);
 
