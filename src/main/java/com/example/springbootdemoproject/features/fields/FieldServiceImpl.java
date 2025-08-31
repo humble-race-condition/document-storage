@@ -36,7 +36,7 @@ public class FieldServiceImpl implements FieldService {
 
         DataRecord dataRecord = fieldRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id \"{}\" not found for data record field update", id);
+                    logger.error("Data record with id '{}' not found for data record field update", id);
                     ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.update.datarecord.datarecord.not.found", id);
                     return new InvalidClientInputException(errorMessage);
                 });
@@ -57,7 +57,7 @@ public class FieldServiceImpl implements FieldService {
                 .toList();
 
         dataRecord = fieldRepository.saveAndFlush(dataRecord);
-        logger.info("Updated fields for data record with id \"{}\"", id);
+        logger.info("Updated fields for data record with id '{}'", id);
         return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
 
@@ -67,7 +67,7 @@ public class FieldServiceImpl implements FieldService {
 
         DataRecord dataRecord = fieldRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id \"{}\" not found for data record field remove", id);
+                    logger.error("Data record with id '{}' not found for data record field remove", id);
                     ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.remove.datarecord.datarecord.not.found", id);
                     return new InvalidClientInputException(errorMessage);
                 });
@@ -88,7 +88,7 @@ public class FieldServiceImpl implements FieldService {
                 .toList();
 
         //ToDo do not return DataRecordDetail, Return only field details. This prevents a database fetch. Do this in section service as well
-        logger.info("Removed fields for data record with id \"{}\"", id);
+        logger.info("Removed fields for data record with id '{}'", id);
         return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
 

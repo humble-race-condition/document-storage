@@ -57,7 +57,7 @@ public class DataRecordServiceImpl implements DataRecordService {
         DataRecordDetail dataRecordDetail = DataRecordDetail
                 .withFields(record.getId(), record.getTitle(), record.getDescription(), fieldDetails);
 
-        logger.info("Data record with id \"{}\" created", dataRecordDetail.id());
+        logger.info("Data record with id '{}' created", dataRecordDetail.id());
         return dataRecordDetail;
     }
 
@@ -67,7 +67,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         Optional<DataRecord> dataRecord = dataRecordRepository.findById(id);
         if (dataRecord.isEmpty()) {
-            logger.error("Data record with id \"{}\" not found for data record update", id);
+            logger.error("Data record with id '{}' not found for data record update", id);
             throw new InvalidClientInputException();
         }
 
@@ -78,7 +78,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         DataRecordDetail dataRecordDetail = DataRecordDetail.fromBase(id, request.title(), request.description());
 
-        logger.info("Data record with id \"{}\" updated", dataRecordDetail.id());
+        logger.info("Data record with id '{}' updated", dataRecordDetail.id());
         return dataRecordDetail;
     }
 
