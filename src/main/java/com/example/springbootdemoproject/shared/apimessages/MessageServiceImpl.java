@@ -36,7 +36,7 @@ public class MessageServiceImpl implements MessageService {
      * @return error message object containing the different error messages
      */
     @Override
-    public ErrorMessage getErrorMessage(String code, @Nullable Object[]... args) {
+    public ErrorMessage getErrorMessage(String code, @Nullable Object... args) {
         String title = messageSource.getMessage(code, args, Locale.ROOT);
         String detail = messageSource.getMessage(code + ".detail", args, Locale.ROOT);
         String errorCode = messageSource.getMessage(code + ".code", args, Locale.ROOT);

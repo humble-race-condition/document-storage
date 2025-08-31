@@ -20,5 +20,5 @@ public interface MessageService {
      * @param args arguments for formatting the string
      * @return error message object containing the different error messages
      */
-    ErrorMessage getErrorMessage(String code, @Nullable Object[]... args);
+    ErrorMessage getErrorMessage(String code, @Nullable Object... args);
 }
