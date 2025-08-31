@@ -39,7 +39,6 @@ public class SectionServiceImpl implements SectionService {
 
     /**
      * Uploads a section to the specified data record
-     *
      * @param dataRecordId the data record to which the section is attached
      * @param sectionFile  the binary file that will be uploaded
      * @return Returns the id of the newly uploaded section
@@ -55,10 +54,10 @@ public class SectionServiceImpl implements SectionService {
                     return new InvalidClientInputException(errorMessage);
                 });
 
-        String fileName = sectionFile.getOriginalFilename();
         Path storagePath = Paths.get(basePath);
         createDirectoryIfNotPresent(storagePath);
 
+        String fileName = sectionFile.getOriginalFilename();
         Path filePath = Paths.get(basePath, fileName);
 
         Section sectionRecord = new Section();
@@ -83,7 +82,6 @@ public class SectionServiceImpl implements SectionService {
 
     /**
      * Deletes a section from
-     *
      * @param dataRecordId the id of the data record
      * @param sectionId    the id of the section
      * @return the updated section details
