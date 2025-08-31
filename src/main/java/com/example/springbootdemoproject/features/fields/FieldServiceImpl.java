@@ -57,7 +57,7 @@ public class FieldServiceImpl implements FieldService {
                 .toList();
 
         dataRecord = fieldRepository.saveAndFlush(dataRecord);
-        logger.info("Data record with id \"{}\" updated fields", id);
+        logger.info("Updated fields for data record with id \"{}\"", id);
         return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
 
@@ -87,6 +87,8 @@ public class FieldServiceImpl implements FieldService {
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
                 .toList();
 
+        //ToDo do not return DataRecordDetail, Return only field details. This prevents a database fetch. Do this in section service as well
+        logger.info("Removed fields for data record with id \"{}\"", id);
         return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
 
