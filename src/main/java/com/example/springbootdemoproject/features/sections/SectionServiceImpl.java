@@ -2,7 +2,7 @@ package com.example.springbootdemoproject.features.sections;
 
 import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Section;
-import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
+import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;

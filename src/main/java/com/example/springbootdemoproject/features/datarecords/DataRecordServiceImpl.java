@@ -4,7 +4,7 @@ import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Field;
 import com.example.springbootdemoproject.features.datarecords.requests.CreateDataRecordRequest;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
-import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
+import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;

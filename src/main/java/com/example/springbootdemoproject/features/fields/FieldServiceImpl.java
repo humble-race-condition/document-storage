@@ -2,7 +2,7 @@ package com.example.springbootdemoproject.features.fields;
 
 import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Field;
-import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
+import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.requests.FieldInfo;
 import com.example.springbootdemoproject.features.fields.requests.RemoveFieldsRequest;
 import com.example.springbootdemoproject.features.fields.requests.UpdateFieldsRequest;
