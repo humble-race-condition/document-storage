@@ -4,6 +4,7 @@ import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Field;
 import com.example.springbootdemoproject.features.datarecords.requests.CreateDataRecordRequest;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
+import com.example.springbootdemoproject.shared.apimessages.MessageService;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
@@ -18,9 +19,11 @@ public class DataRecordServiceImpl implements DataRecordService {
     private static final Logger logger = LoggerFactory.getLogger(DataRecordServiceImpl.class);
 
     private final DataRecordRepository dataRecordRepository;
+    private final MessageService messageService;
 
-    public DataRecordServiceImpl(DataRecordRepository dataRecordRepository) {
+    public DataRecordServiceImpl(DataRecordRepository dataRecordRepository, MessageService messageService) {
         this.dataRecordRepository = dataRecordRepository;
+        this.messageService = messageService;
     }
 
     //ToDo Soft Delete on datarecords

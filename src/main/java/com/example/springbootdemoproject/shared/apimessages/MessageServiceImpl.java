@@ -30,14 +30,14 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * Gets the error message title, details and code in a single object
-     * @param code the code for the title is {@code code.title}. This serves as a base message. The code for the detail
+     * @param code the code for the title is {@code code}. This serves as a base message. The code for the detail
      *             is {@code code.detail} and code for the error code is {@code code.code}
      * @param args arguments for formatting the string
      * @return error message object containing the different error messages
      */
     @Override
     public ErrorMessage getErrorMessage(String code, @Nullable Object[]... args) {
-        String title = messageSource.getMessage(code + ".title", args, Locale.ROOT);
+        String title = messageSource.getMessage(code, args, Locale.ROOT);
         String detail = messageSource.getMessage(code + ".detail", args, Locale.ROOT);
         String errorCode = messageSource.getMessage(code + ".code", args, Locale.ROOT);
         return new ErrorMessage(title, detail, errorCode);
