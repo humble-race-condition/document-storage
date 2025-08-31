@@ -2,8 +2,10 @@ package com.example.springbootdemoproject.features.sections;
 
 import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Section;
+import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
+import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,18 +16,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SectionServiceImpl implements SectionService {
 
     private final SectionRepository sectionRepository;
+    private final LocalizationService localizationService;
     private final String basePath;
 
     public SectionServiceImpl(
             SectionRepository sectionRepository,
+            LocalizationService localizationService,
             @Value("${document.storage.path}") String basePath) {
         this.sectionRepository = sectionRepository;
+        this.localizationService = localizationService;
         this.basePath = basePath;
     }
 
@@ -39,7 +43,11 @@ public class SectionServiceImpl implements SectionService {
     public DataRecordDetail uploadSection(int dataRecordId, MultipartFile sectionFile) {
         DataRecord dataRecord = sectionRepository
                 .findById(dataRecordId)
-                .orElseThrow(InvalidClientInputException::new);
+                .orElseThrow(() -> {
+                    logger.error("Data record with id \"{}\" not found for data record field update", id);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.update.datarecord.datarecord.not.found", id);
+                    return new InvalidClientInputException(errorMessage);
+                });
 
         String fileName = sectionFile.getOriginalFilename();
         Path storagePath = Paths.get(basePath);

@@ -3,7 +3,7 @@ package com.example.springbootdemoproject.shared.apimessages;
 import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
 import io.micrometer.common.lang.Nullable;
 
-public interface MessageService {
+public interface LocalizationService {
     /**
      * Base method for retrieving a localized message
      *

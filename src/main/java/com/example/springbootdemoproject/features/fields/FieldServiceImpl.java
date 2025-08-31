@@ -2,7 +2,7 @@ package com.example.springbootdemoproject.features.fields;
 
 import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Field;
-import com.example.springbootdemoproject.shared.apimessages.MessageService;
+import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.requests.FieldInfo;
 import com.example.springbootdemoproject.features.fields.requests.RemoveFieldsRequest;
 import com.example.springbootdemoproject.features.fields.requests.UpdateFieldsRequest;
@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 public class FieldServiceImpl implements FieldService {
     private static final Logger logger = LoggerFactory.getLogger(FieldServiceImpl.class);
     private final FieldRepository fieldRepository;
-    private final MessageService messageService;
+    private final LocalizationService localizationService;
 
-    public FieldServiceImpl(FieldRepository fieldRepository, MessageService messageService) {
+    public FieldServiceImpl(FieldRepository fieldRepository, LocalizationService localizationService) {
         this.fieldRepository = fieldRepository;
-        this.messageService = messageService;
+        this.localizationService = localizationService;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class FieldServiceImpl implements FieldService {
         DataRecord dataRecord = fieldRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Data record with id \"{}\" not found for data record field update", id);
-                    ErrorMessage errorMessage = messageService.getErrorMessage("features.fields.on.update.datarecord.datarecord.not.found", id);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.update.datarecord.datarecord.not.found", id);
                     return new InvalidClientInputException(errorMessage);
                 });
 
@@ -68,7 +68,7 @@ public class FieldServiceImpl implements FieldService {
         DataRecord dataRecord = fieldRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Data record with id \"{}\" not found for data record field remove", id);
-                    ErrorMessage errorMessage = messageService.getErrorMessage("features.fields.on.remove.datarecord.datarecord.not.found", id);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.remove.datarecord.datarecord.not.found", id);
                     return new InvalidClientInputException(errorMessage);
                 });
 
