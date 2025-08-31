@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.shared.exceptions;
+package com.example.springbootdemoproject.shared.base.exceptions;
 
 /**
  * Exception thrown when the system is not in a valid state

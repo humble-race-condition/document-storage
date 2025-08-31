@@ -1,6 +1,6 @@
-package com.example.springbootdemoproject.shared.apimessages;
+package com.example.springbootdemoproject.shared.base.apimessages;
 
-import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
+import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
 import io.micrometer.common.lang.Nullable;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;

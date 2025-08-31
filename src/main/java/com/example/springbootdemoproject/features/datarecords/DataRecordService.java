@@ -13,6 +13,14 @@ public interface DataRecordService {
      */
     DataRecordDetail getDataRecordById(int id);
 
+    /**
+     * Retrieves all data records filtered by the specified parameters
+     * @param title       of the data record
+     * @param description of the data record
+     * @return the list of data record details
+     */
+    DataRecordContainerResponse getDataRecords(String title, String description);
+
     DataRecordDetail createDataRecord(CreateDataRecordRequest request);
 
     DataRecordDetail updateDataRecord(int id, UpdateDataRecordRequest request);

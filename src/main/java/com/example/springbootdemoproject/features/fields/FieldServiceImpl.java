@@ -8,8 +8,8 @@ import com.example.springbootdemoproject.features.fields.requests.RemoveFieldsRe
 import com.example.springbootdemoproject.features.fields.requests.UpdateFieldsRequest;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
-import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
-import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
+import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
+import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

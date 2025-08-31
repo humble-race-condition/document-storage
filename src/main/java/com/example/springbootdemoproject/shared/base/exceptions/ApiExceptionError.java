@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.shared.exceptions;
+package com.example.springbootdemoproject.shared.base.exceptions;
 
 /**
  * Interface implementing additional api errors when they occur

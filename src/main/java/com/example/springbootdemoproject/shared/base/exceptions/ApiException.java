@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.shared.exceptions;
+package com.example.springbootdemoproject.shared.base.exceptions;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,9 +1,9 @@
 package com.example.springbootdemoproject.config;
 
-import com.example.springbootdemoproject.shared.errorresponse.ErrorCode;
-import com.example.springbootdemoproject.shared.errorresponse.ErrorDetails;
-import com.example.springbootdemoproject.shared.errorresponse.ErrorResponse;
-import com.example.springbootdemoproject.shared.exceptions.ApiException;
+import com.example.springbootdemoproject.shared.base.errorresponse.ErrorCode;
+import com.example.springbootdemoproject.shared.base.errorresponse.ErrorDetails;
+import com.example.springbootdemoproject.shared.base.errorresponse.ErrorResponse;
+import com.example.springbootdemoproject.shared.base.exceptions.ApiException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

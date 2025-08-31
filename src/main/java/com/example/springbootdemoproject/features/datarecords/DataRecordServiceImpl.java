@@ -8,8 +8,8 @@ import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
-import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
-import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
+import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
+import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -54,6 +54,29 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         logger.info("Retrieved data record by id '{}'", id);
         return dataRecordDetail;
+    }
+
+    /**
+     * Retrieves all data records filtered by the specified parameters
+     * @param title       of the data record
+     * @param description of the data record
+     * @return the list of data record details
+     */
+    @Override
+    public DataRecordContainerResponse getDataRecords(String title, String description) {
+        List<DataRecord> dataRecords = dataRecordRepository
+                .findAll(DataRecordSpecification.hasTitle(title).or(DataRecordSpecification.hasDescription(description)));
+
+        List<DataRecordDetail> dataRecordDetails = dataRecords.stream()
+                .map(record -> {
+                       DataRecordDetail dataRecordDetail = DataRecordDetail
+                            .fromBase(record.getId(), record.getTitle(), record.getDescription());
+                    return dataRecordDetail;
+                })
+                .toList();
+
+        logger.info("Retrieved data record details");
+        return new DataRecordContainerResponse(dataRecordDetails);
     }
 
     //ToDo Soft Delete on datarecords

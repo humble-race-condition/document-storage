@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/data-records")
 public class DataRecordController {
-
     private final DataRecordService dataRecordService;
 
     public DataRecordController(DataRecordService dataRecordService) {
@@ -18,17 +17,30 @@ public class DataRecordController {
     }
 
     /**
+     * Gets all data record details filtered by the query parameters
+     * @return {@link DataRecordContainerResponse} the data record details
+     */
+    @GetMapping
+    public ResponseEntity<DataRecordContainerResponse> getDataRecords(@RequestParam(defaultValue = "") String title,
+                                                                 @RequestParam(defaultValue = "") String description) {
+        DataRecordContainerResponse dataRecords = dataRecordService.getDataRecords(title, description);
+        return ResponseEntity.ok().body(dataRecords);
+    }
+
+    /**
      * Gets data record details by id
+     *
      * @return {@link DataRecordDetail} the data record details
      */
     @GetMapping("/{id}")
-    public ResponseEntity<DataRecordDetail> getDataRecordById(@Valid @PathVariable int id) {
+    public ResponseEntity<DataRecordDetail> getDataRecordById(@PathVariable int id) {
         DataRecordDetail dataRecord = dataRecordService.getDataRecordById(id);
         return ResponseEntity.ok().body(dataRecord);
     }
 
     /**
      * Creates a data record with the specified fields
+     *
      * @param request {@link CreateDataRecordRequest} The request for the data record
      * @return {@link DataRecordDetail} the data record details
      */
@@ -40,7 +52,8 @@ public class DataRecordController {
 
     /**
      * Updated the data record
-     * @param id of the data record
+     *
+     * @param id      of the data record
      * @param request {@link UpdateDataRecordRequest} The modified values
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */

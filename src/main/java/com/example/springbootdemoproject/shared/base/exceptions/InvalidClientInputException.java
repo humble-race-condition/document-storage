@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject.shared.exceptions;
+package com.example.springbootdemoproject.shared.base.exceptions;
 
 /**
  * Exception thrown when the client input is not valid
