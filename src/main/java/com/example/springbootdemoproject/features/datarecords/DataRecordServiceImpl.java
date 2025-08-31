@@ -7,6 +7,7 @@ import com.example.springbootdemoproject.features.datarecords.requests.UpdateDat
 import com.example.springbootdemoproject.shared.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
+import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import com.example.springbootdemoproject.shared.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.exceptions.InvalidClientInputException;
 import org.slf4j.Logger;
@@ -25,6 +26,34 @@ public class DataRecordServiceImpl implements DataRecordService {
     public DataRecordServiceImpl(DataRecordRepository dataRecordRepository, LocalizationService localizationService) {
         this.dataRecordRepository = dataRecordRepository;
         this.localizationService = localizationService;
+    }
+
+    /**
+     * Returns a data record details by its id
+     * @param id of the data record
+     * @return the data record details with their sections and fields
+     */
+    @Override
+    public DataRecordDetail getDataRecordById(int id) {
+        DataRecord record = dataRecordRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Data record with id '{}' not found for data record get by id", id);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.datarecords.on.datarecord.get.by.id.datarecord.not.found", id);
+                    return new InvalidClientInputException(errorMessage);
+                });
+
+        List<FieldDetail> fieldDetails = record.getFields().stream()
+                .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
+                .toList();
+
+        List<SectionDetail> sectionDetails = record.getSections().stream()
+                .map(s -> new SectionDetail(s.getId(), s.getFileName(), s.getStorageLocation()))
+                .toList();
+
+        DataRecordDetail dataRecordDetail = new DataRecordDetail(record.getId(), record.getTitle(), record.getDescription(), fieldDetails, sectionDetails);
+
+        logger.info("Retrieved data record by id '{}'", id);
+        return dataRecordDetail;
     }
 
     //ToDo Soft Delete on datarecords

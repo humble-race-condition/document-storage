@@ -18,6 +18,16 @@ public class DataRecordController {
     }
 
     /**
+     * Gets data record details by id
+     * @return {@link DataRecordDetail} the data record details
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<DataRecordDetail> getDataRecordById(@Valid @PathVariable int id) {
+        DataRecordDetail dataRecord = dataRecordService.getDataRecordById(id);
+        return ResponseEntity.ok().body(dataRecord);
+    }
+
+    /**
      * Creates a data record with the specified fields
      * @param request {@link CreateDataRecordRequest} The request for the data record
      * @return {@link DataRecordDetail} the data record details
