@@ -3,8 +3,12 @@ package com.example.springbootdemoproject.config;
 import com.example.springbootdemoproject.shared.errorresponse.ErrorCode;
 import com.example.springbootdemoproject.shared.errorresponse.ErrorDetails;
 import com.example.springbootdemoproject.shared.errorresponse.ErrorResponse;
+import com.example.springbootdemoproject.shared.exceptions.ApiException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,7 +20,9 @@ import java.util.Optional;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    //ToDo fix this - check if this handler is needed
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
 
@@ -26,5 +32,18 @@ public class GlobalExceptionHandler {
         String path = Optional.ofNullable(request.getRequestURI()).orElse("");
         ErrorResponse errorResponse = new ErrorResponse(errors, path, LocalDateTime.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ProblemDetail handleValidationExceptions(ApiException ex) {
+        logger.error(ex.getMessage(), ex);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatus());
+        problemDetail.setTitle(ex.getTitle());
+        problemDetail.setDetail(ex.getDetail());
+        problemDetail.setProperty("code", ex.getCode());
+        problemDetail.setProperty("timestamp", LocalDateTime.now());
+        problemDetail.setProperty("errors", ex.getErrors());
+        return problemDetail;
     }
 }
