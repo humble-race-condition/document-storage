@@ -57,9 +57,9 @@ public class RegisterCriteriaParser {
                     String columnName = s.substring(indexOfFirstSeparator + 1, indexOfSecondSeparator);
                     String value = s.substring(indexOfSecondSeparator + 1);
                     Specification<T> specification = switch (filterOperator) {
-                        case "EQUALS" -> SpecificationHandlers.equals(value, columnName);
-                        case "STARTSWITH" -> SpecificationHandlers.startsWith(value, columnName);
-                        case "CONTAINS" -> SpecificationHandlers.contains(value, columnName);
+                        case "EQUALS" -> SpecificationHandlers.equals(columnName, value);
+                        case "STARTSWITH" -> SpecificationHandlers.startsWith(columnName, value);
+                        case "CONTAINS" -> SpecificationHandlers.contains(columnName, value);
                         default -> null;
                     };
 
