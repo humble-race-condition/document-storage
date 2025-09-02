@@ -28,7 +28,7 @@ public class DataRecordController {
             @ModelAttribute @Valid FilterCriteria filterCriteria,
             @ModelAttribute @Valid PaginationCriteria paginationCriteria) {
         DataRecordContainerResponse dataRecords = dataRecordService.getDataRecords(filterCriteria, paginationCriteria);
-        return ResponseEntity.ok().body(null);
+        return ResponseEntity.ok().body(dataRecords);
     }
 
     /**

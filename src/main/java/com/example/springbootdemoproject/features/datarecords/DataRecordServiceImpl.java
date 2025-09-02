@@ -7,19 +7,19 @@ import com.example.springbootdemoproject.features.datarecords.requests.UpdateDat
 import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
+import com.example.springbootdemoproject.shared.base.registers.FilterCriteria;
+import com.example.springbootdemoproject.shared.base.registers.PaginationCriteria;
+import com.example.springbootdemoproject.shared.base.registers.RegisterCriteriaParser;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.FieldDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,28 +67,15 @@ public class DataRecordServiceImpl implements DataRecordService {
     /**
      * Retrieves all data records filtered by the specified parameters
      *
-     * @param title       of the data record
-     * @param description of the data record
-     * @param page        of the request, starting from 0
-     * @param size        of the page
-     * @param sort        of the result
-     * @return the list of data record details
+     * @param filterCriteria contains the criteria by which the data is filtered
+     * @param paginationCriteria contains the pagination requirements
+     * @return the paginated data records
      */
     @Override
-    public DataRecordContainerResponse getDataRecords(String title, String description, int page, int size, String[] sort) {
-        List<Sort.Order> orders = new ArrayList<>();
-        for (String sortParam : sort) {
-            String[] parts = sortParam.split(",");
-            if (parts.length == 2) {
-                orders.add(new Sort.Order(Sort.Direction.fromString(parts[1]), parts[0]));
-            } else {
-                orders.add(new Sort.Order(Sort.Direction.ASC, parts[0]));
-            }
-        }
+    public DataRecordContainerResponse getDataRecords(FilterCriteria filterCriteria, PaginationCriteria paginationCriteria) {
+        Pageable pageable = RegisterCriteriaParser.parsePaginationCriteria(paginationCriteria);
+        Specification<DataRecord> spec = RegisterCriteriaParser.parseFilterCriteria(filterCriteria);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-
-        Specification<DataRecord> spec = DataRecordSpecification.hasTitle(title).or(DataRecordSpecification.hasDescription(description));
         Page<DataRecord> dataRecords = dataRecordRepository.findAll(spec, pageable);
 
         List<DataRecordDetail> dataRecordDetails = dataRecords.stream().map(record -> {
