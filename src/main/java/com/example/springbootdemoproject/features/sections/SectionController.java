@@ -19,7 +19,7 @@ public class SectionController {
     //ToDo unique for fields, and add a check
     // ToDo add flyway sometime, but for now, its easier this way
     @PostMapping
-    public ResponseEntity<DataRecordDetail> uploadSection(@PathVariable int dataRecordId, @RequestPart("section") MultipartFile sectionFile) {
+    public ResponseEntity<DataRecordDetail> uploadSection(@PathVariable int dataRecordId, @RequestParam("section") MultipartFile sectionFile) {
         DataRecordDetail recordDetail = sectionService.uploadSection(dataRecordId, sectionFile);
         return ResponseEntity.ok(recordDetail);
     }
