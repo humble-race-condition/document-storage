@@ -1,6 +1,8 @@
 package com.example.springbootdemoproject.features.datarecords;
 
 import com.example.springbootdemoproject.features.datarecords.requests.CreateDataRecordRequest;
+import com.example.springbootdemoproject.shared.base.registers.FilterCriteria;
+import com.example.springbootdemoproject.shared.base.registers.PaginationCriteria;
 import com.example.springbootdemoproject.features.datarecords.requests.UpdateDataRecordRequest;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import jakarta.validation.Valid;
@@ -23,14 +25,10 @@ public class DataRecordController {
      */
     @GetMapping
     public ResponseEntity<DataRecordContainerResponse> getDataRecords(
-            @RequestParam(defaultValue = "") String title,
-            @RequestParam(defaultValue = "") String description,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id,asc") String[] sort) {
-        //ToDo fix request body. Make it a single unified request body
-        DataRecordContainerResponse dataRecords = dataRecordService.getDataRecords(title, description, page, size, sort);
-        return ResponseEntity.ok().body(dataRecords);
+            @ModelAttribute @Valid FilterCriteria filterCriteria,
+            @ModelAttribute @Valid PaginationCriteria paginationCriteria) {
+        DataRecordContainerResponse dataRecords = dataRecordService.getDataRecords(filterCriteria, paginationCriteria);
+        return ResponseEntity.ok().body(null);
     }
 
     /**
