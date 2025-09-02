@@ -26,7 +26,7 @@ public class SpecificationHandlers {
      */
     public static <T> Specification<T> startsWith(String value, String column) {
         String comparedValue = Optional.ofNullable(value).orElse("");
-        String formattedValue = "%" + comparedValue;
+        String formattedValue = comparedValue + "%";
         return (root, query, cb) -> comparedValue.isEmpty() ? null : cb.like(root.get(column), formattedValue);
     }
 
