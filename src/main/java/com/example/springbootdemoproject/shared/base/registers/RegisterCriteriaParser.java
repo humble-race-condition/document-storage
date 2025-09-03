@@ -56,7 +56,7 @@ public class RegisterCriteriaParser {
                 .map(s -> {
                     int indexOfFirstSeparator = s.indexOf(SEPARATOR);
                     String filterOperator = s.substring(0, indexOfFirstSeparator).toUpperCase();
-                    int indexOfSecondSeparator = s.indexOf(",", indexOfFirstSeparator + 1);
+                    int indexOfSecondSeparator = s.indexOf(SEPARATOR, indexOfFirstSeparator + 1);
                     String columnName = s.substring(indexOfFirstSeparator + 1, indexOfSecondSeparator);
                     String value = s.substring(indexOfSecondSeparator + 1);
                     Specification<T> specification = switch (filterOperator) {
