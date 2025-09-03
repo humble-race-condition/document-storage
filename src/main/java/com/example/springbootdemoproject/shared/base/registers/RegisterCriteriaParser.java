@@ -8,6 +8,9 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.*;
 
 public class RegisterCriteriaParser {
+    private static final String SEPARATOR = ":";
+
+
     /**
      * Parses all the pagination criteria
      *
@@ -21,7 +24,7 @@ public class RegisterCriteriaParser {
 
         List<Sort.Order> orders = new ArrayList<>();
         for (String sortParam : sort) {
-            String[] parts = sortParam.split(",");
+            String[] parts = sortParam.split(SEPARATOR);
             if (parts.length == 2) {
                 orders.add(new Sort.Order(Sort.Direction.fromString(parts[1]), parts[0]));
             } else {
@@ -51,7 +54,7 @@ public class RegisterCriteriaParser {
                 .orElse("AND");
         List<Specification<T>> specifications = Arrays.stream(filterCriteria.filter())
                 .map(s -> {
-                    int indexOfFirstSeparator = s.indexOf(",");
+                    int indexOfFirstSeparator = s.indexOf(SEPARATOR);
                     String filterOperator = s.substring(0, indexOfFirstSeparator).toUpperCase();
                     int indexOfSecondSeparator = s.indexOf(",", indexOfFirstSeparator + 1);
                     String columnName = s.substring(indexOfFirstSeparator + 1, indexOfSecondSeparator);
