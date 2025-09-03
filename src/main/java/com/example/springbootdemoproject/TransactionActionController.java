@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-@RestController
+//@RestController
 public class TransactionActionController {
     private final TransactionActionRecordRepository repository;
 

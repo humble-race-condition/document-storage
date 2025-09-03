@@ -21,7 +21,7 @@ public class RegisterCriteriaParser {
         int page = Math.max(paginationCriteria.page(), 0);
         int size = Math.max(paginationCriteria.size(), 1);
         String[] sort = Optional.ofNullable(paginationCriteria.sort()).orElse(new String[0]);
-
+        //ToDo Sort order needs to be deterministic
         List<Sort.Order> orders = new ArrayList<>();
         for (String sortParam : sort) {
             String[] parts = sortParam.split(SEPARATOR);
