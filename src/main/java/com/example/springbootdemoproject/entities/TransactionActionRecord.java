@@ -1,7 +1,7 @@
 package com.example.springbootdemoproject.entities;
 
 
-import com.example.springbootdemoproject.ActionType;
+import com.example.springbootdemoproject.shared.base.trasnasctionactions.ActionType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
