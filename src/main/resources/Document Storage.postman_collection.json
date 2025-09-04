@@ -1,0 +1,334 @@
+{
+	"info": {
+		"_postman_id": "2285d0df-d628-465e-bd8f-21b5ca18ec3b",
+		"name": "Document Storage",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10502320"
+	},
+	"item": [
+		{
+			"name": "Data Records",
+			"item": [
+				{
+					"name": "Get Data Record by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{dataRecordId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Data Records",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records?filter=contains:title:1&filter=equals:title:Demo 4&page=0&size=3&sort=id:asc&sort=title:desc&operator=or",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "contains:title:1"
+								},
+								{
+									"key": "filter",
+									"value": "equals:title:Demo 4"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "3"
+								},
+								{
+									"key": "sort",
+									"value": "id:asc"
+								},
+								{
+									"key": "sort",
+									"value": "title:desc"
+								},
+								{
+									"key": "operator",
+									"value": "or"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Data Record",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();\r",
+									"pm.environment.set(\"dataRecordId\", response.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Test 3\",\r\n    \"description\": \"Some description\",\r\n    \"fields\": [\r\n        {\r\n            \"name\": \"field_1\",\r\n            \"value\": \"value_1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update data record",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Some title\",\r\n    \"description\": \"Some description 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{dataRecordId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fields",
+			"item": [
+				{
+					"name": "Update data record fields",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fields\": [\r\n        {\r\n            \"name\": \"field_1\",\r\n            \"value\": \"value_1_Updated\"\r\n        },\r\n        {\r\n            \"name\": \"field_3\",\r\n            \"value\": \"value_2_Updated_2\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records/:id/fields",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records",
+								":id",
+								"fields"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{dataRecordId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove data record fields",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fields\": [\r\n        \"field_1\",\r\n        \"field_2\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records/:id/fields",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records",
+								":id",
+								"fields"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{dataRecordId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sections",
+			"item": [
+				{
+					"name": "Upload a section to a document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();\r",
+									"pm.environment.set(\"sectionId\", response.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "section",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records/:id/sections",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records",
+								":id",
+								"sections"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{dataRecordId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletes a section",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "section",
+									"type": "file",
+									"src": "/C:/Users/Vasil/Desktop/9001858216_A.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records/:id/sections/:sectionId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records",
+								":id",
+								"sections",
+								":sectionId"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{dataRecordId}}"
+								},
+								{
+									"key": "sectionId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
