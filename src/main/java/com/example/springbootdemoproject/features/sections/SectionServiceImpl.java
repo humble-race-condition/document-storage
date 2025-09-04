@@ -2,16 +2,21 @@ package com.example.springbootdemoproject.features.sections;
 
 import com.example.springbootdemoproject.entities.DataRecord;
 import com.example.springbootdemoproject.entities.Section;
+import com.example.springbootdemoproject.entities.TransactionActionRecord;
 import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
 import com.example.springbootdemoproject.shared.base.exceptions.InvalidSystemStateException;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
+import com.example.springbootdemoproject.shared.base.trasnasctionactions.ActionType;
+import com.example.springbootdemoproject.shared.base.trasnasctionactions.TransactionActionRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,14 +30,20 @@ public class SectionServiceImpl implements SectionService {
     private static final Logger logger = LoggerFactory.getLogger(SectionServiceImpl.class);
 
     private final SectionRepository sectionRepository;
+    private final TransactionActionRecordRepository transactionActionRepository;
+    private final TransactionTemplate transactionTemplate;
     private final LocalizationService localizationService;
     private final String basePath;
 
     public SectionServiceImpl(
             SectionRepository sectionRepository,
+            TransactionActionRecordRepository transactionActionRecordRepository,
+            TransactionTemplate transactionTemplate,
             LocalizationService localizationService,
             @Value("${document.storage.path}") String basePath) {
         this.sectionRepository = sectionRepository;
+        this.transactionActionRepository = transactionActionRecordRepository;
+        this.transactionTemplate = transactionTemplate;
         this.localizationService = localizationService;
         this.basePath = basePath;
     }
@@ -46,38 +57,29 @@ public class SectionServiceImpl implements SectionService {
      */
     @Override
     public DataRecordDetail uploadSection(int dataRecordId, MultipartFile sectionFile) {
-        //ToDo transaction management
-        DataRecord dataRecord = sectionRepository
-                .findById(dataRecordId)
-                .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for section upload", dataRecordId);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.upload.datarecord.not.found", dataRecordId);
-                    return new InvalidClientInputException(errorMessage);
-                });
-
         Path storagePath = Paths.get(basePath);
         createDirectoryIfNotPresent(storagePath);
-
+        //ToDo fix nulls
+        //ToDo fix path. Store only the relative path in the database. Check the variables in application.properties
+        //ToDo fix return type of the method
+        //But, the good part is, that the core of the idea, works!
         String fileName = sectionFile.getOriginalFilename();
         Path filePath = Paths.get(basePath, fileName);
 
-        Section sectionRecord = new Section();
-        sectionRecord.setFileName(sectionFile.getOriginalFilename());
-        sectionRecord.setStorageLocation(filePath.toString());
-        dataRecord.addSection(sectionRecord);
+        TransactionActionRecord actionRecord = transactionTemplate
+                .execute((status) -> createTransactionAction(status, filePath));
 
-        storeSection(sectionFile, filePath);
+        Section section = transactionTemplate
+                .execute((status -> storeSection(actionRecord, dataRecordId, sectionFile, filePath)));
 
-        dataRecord = sectionRepository.saveAndFlush(dataRecord);
-
-        List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
+        List<SectionDetail> sectionDetails = section.getDataRecord().getSections().stream()
                 .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
                 .toList();
 
         DataRecordDetail recordDetail = DataRecordDetail
-                .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
+                .withSections(section.getDataRecord().getId(), section.getDataRecord().getTitle(), section.getDataRecord().getDescription(), sectionDetails);
 
-        logger.info("Uploaded section '{}' to data record '{}'", sectionRecord.getId(), dataRecordId);
+        logger.info("Uploaded section '{}' to data record '{}'", section.getId(), dataRecordId);
         return recordDetail;
     }
 
@@ -155,5 +157,36 @@ public class SectionServiceImpl implements SectionService {
             ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
             throw new InvalidSystemStateException(errorMessage, e);
         }
+    }
+
+    private TransactionActionRecord createTransactionAction(TransactionStatus status, Path filePath) {
+        TransactionActionRecord actionRecord = new TransactionActionRecord();
+        actionRecord.setStorageLocation(filePath.toString());
+        actionRecord.setActionType(ActionType.CREATE);
+
+        transactionActionRepository.save(actionRecord);
+
+        return actionRecord;
+    }
+
+    private Section storeSection(TransactionActionRecord actionRecord, int dataRecordId, MultipartFile sectionFile, Path filePath) {
+        DataRecord dataRecord = sectionRepository
+                .findById(dataRecordId)
+                .orElseThrow(() -> {
+                    logger.error("Data record with id '{}' not found for section upload", dataRecordId);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.upload.datarecord.not.found", dataRecordId);
+                    return new InvalidClientInputException(errorMessage);
+                });
+
+        Section sectionRecord = new Section();
+        sectionRecord.setFileName(sectionFile.getOriginalFilename());
+        sectionRecord.setStorageLocation(filePath.toString());
+        dataRecord.addSection(sectionRecord);
+
+        storeSection(sectionFile, filePath);
+
+        actionRecord.setCommitted(true);
+
+        return sectionRecord;
     }
 }

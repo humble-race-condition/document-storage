@@ -1,4 +1,4 @@
-package com.example.springbootdemoproject;
+package com.example.springbootdemoproject.shared.base.trasnasctionactions;
 
 import com.example.springbootdemoproject.entities.TransactionActionRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
