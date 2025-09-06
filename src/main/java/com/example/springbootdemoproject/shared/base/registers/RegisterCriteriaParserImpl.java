@@ -39,15 +39,17 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
      */
     @Override
     public Pageable parsePaginationCriteria(PaginationCriteria paginationCriteria) {
-        validateSortFormat(paginationCriteria.sort());
+        int page = Math.max(RegisterCriteriaParserImpl.PAGE, Optional.ofNullable(paginationCriteria.page()).orElse(RegisterCriteriaParserImpl.PAGE));
+        int size = Math.max(RegisterCriteriaParserImpl.SIZE, Optional.ofNullable(paginationCriteria.size()).orElse(RegisterCriteriaParserImpl.PAGE));
+        String[] sort = validateSortFormat(paginationCriteria.sort());
 
-        List<Sort.Order> sorts = Arrays.stream(paginationCriteria.sort())
+        List<Sort.Order> sortOrders = Arrays.stream(sort)
                 .map(s -> s.split(SEPARATOR))
                 .sorted(Comparator.comparing(s -> Integer.parseInt(s[0])))
                 .map(s -> new Sort.Order(Sort.Direction.fromString(s[2]), s[1]))
                 .toList();
 
-        Pageable pageable = PageRequest.of(paginationCriteria.page(), paginationCriteria.size(), Sort.by(sorts));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortOrders));
 
         return pageable;
     }
@@ -61,13 +63,16 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
      */
     @Override
     public <T> Specification<T> parseFilterCriteria(FilterCriteria filterCriteria) {
-        validateFilterCriteriaFormat(filterCriteria.filter());
+        String[] filter = validateFilterCriteriaFormat(filterCriteria.filter());
+        String operator = Optional.ofNullable(filterCriteria.operator())
+                .map(String::toUpperCase)
+                .orElse(RegisterCriteriaParserImpl.OR);
 
-        if (filterCriteria.filter().length == 0) {
+        if (filter.length == 0) {
             return Specification.anyOf(new ArrayList<>());
         }
 
-        List<Specification<T>> specifications = Arrays.stream(filterCriteria.filter())
+        List<Specification<T>> specifications = Arrays.stream(filter)
                 .map(s -> {
                     String[] splitFilter = s.split(SEPARATOR);
                     String filterOperator = splitFilter[0].toUpperCase();
@@ -85,15 +90,19 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
                 .filter(Objects::nonNull)
                 .toList();
 
-        Specification<T> specification = AND.equals(filterCriteria.operator())
+        Specification<T> specification = AND.equals(operator)
                 ? Specification.allOf(specifications)
                 : Specification.anyOf(specifications);
 
         return specification;
     }
 
-    private void validateSortFormat(String[] sorts) {
-        for (String sort : sorts) {
+    private String[] validateSortFormat(String[] sorts) {
+        String[] validatedSorts = sorts != null
+                ? Arrays.stream(sorts).filter(Objects::nonNull).toArray(String[]::new)
+                : new String[0];
+
+        for (String sort : validatedSorts) {
             if (sort == null) {
                 logger.error("The sort order is null");
                 ErrorMessage errorMessage = localizationService.getErrorMessage("features.datarecords.on.datarecord.get.all.sort.is.null");
@@ -115,10 +124,16 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
                 throwSortException(sort);
             }
         }
+
+        return validatedSorts;
     }
 
-    private void validateFilterCriteriaFormat(String[] filters) {
-        for (String filter : filters) {
+    private String[] validateFilterCriteriaFormat(String[] filters) {
+        String[] validatedFilters = filters != null
+                ? Arrays.stream(filters).filter(Objects::nonNull).toArray(String[]::new)
+                : new String[0];
+
+        for (String filter : validatedFilters) {
             if (filter == null) {
                 logger.error("The filter is null");
                 ErrorMessage errorMessage = localizationService.getErrorMessage("features.datarecords.on.datarecord.get.all.filter.is.null");
@@ -126,12 +141,14 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
             }
 
             String[] splitFilter = filter.split(SEPARATOR);
-            if (splitFilter.length != 2) {
+            if (splitFilter.length != 3) {
                 logger.error("The filter '{}' does not have a valid format", filter);
                 ErrorMessage errorMessage = localizationService.getErrorMessage("features.datarecords.on.datarecord.get.all.filter.not.valid", filter);
                 throw new InvalidClientInputException(errorMessage);
             }
         }
+
+        return validatedFilters;
     }
 
     private void throwSortException(String sort) {
