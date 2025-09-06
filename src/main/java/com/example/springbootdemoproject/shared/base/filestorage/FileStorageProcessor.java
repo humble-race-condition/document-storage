@@ -47,11 +47,15 @@ public class FileStorageProcessor {
         record.setProcessed(true);
 
         if (ActionType.CREATE.equals(record.getActionType()) && !record.isCommitted()) {
-            fileStorage.deleteSection(record.getStorageLocation());
-        } else if (ActionType.DELETE.equals(record.getActionType()) && record.isCommitted()) {
-            fileStorage.deleteSection(record.getStorageLocation());
+            fileStorage.deleteSectionIfPresent(record.getStorageLocation());
+            logger.info("Processing transaction record {}", record.getId());
+            return;
         }
 
-        logger.info("Processing transaction record {}", record.getId());
+        if (ActionType.DELETE.equals(record.getActionType()) && record.isCommitted()) {
+            fileStorage.deleteSection(record.getStorageLocation());
+            logger.info("Processing transaction record {}", record.getId());
+            return;
+        }
     }
 }
