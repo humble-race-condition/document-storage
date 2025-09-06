@@ -7,5 +7,5 @@ import com.example.springbootdemoproject.shared.base.models.responses.DataRecord
 public interface FieldService {
     DataRecordDetail updateDataRecordFields(int id, UpdateFieldsRequest request);
 
-    DataRecordDetail removeDataRecordFields(int id, RemoveFieldsRequest request);
+    void removeDataRecordFields(int id, RemoveFieldsRequest request);
 }
