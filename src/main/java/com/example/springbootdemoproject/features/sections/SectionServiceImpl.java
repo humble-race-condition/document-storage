@@ -111,6 +111,7 @@ public class SectionServiceImpl implements SectionService {
         TransactionActionRecord actionRecord = addDeleteTransactionAction(removedSection.getStorageLocation());
         deleteSection(dataRecord, removedSection, actionRecord);
 
+        sectionRepository.saveAndFlush(dataRecord);
         logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
     }
 
