@@ -6,23 +6,18 @@ import com.example.springbootdemoproject.entities.TransactionActionRecord;
 import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
-import com.example.springbootdemoproject.shared.base.exceptions.InvalidSystemStateException;
+import com.example.springbootdemoproject.shared.base.filestorage.FileStorage;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
-import com.example.springbootdemoproject.shared.base.trasnasctionactions.ActionType;
-import com.example.springbootdemoproject.shared.base.trasnasctionactions.TransactionActionRecordRepository;
+import com.example.springbootdemoproject.shared.base.filestorage.ActionType;
+import com.example.springbootdemoproject.shared.base.filestorage.TransactionActionRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -32,20 +27,20 @@ public class SectionServiceImpl implements SectionService {
     private final SectionRepository sectionRepository;
     private final TransactionActionRecordRepository transactionActionRepository;
     private final TransactionTemplate transactionTemplate;
+    private final FileStorage fileStorage;
     private final LocalizationService localizationService;
-    private final String basePath;
 
     public SectionServiceImpl(
             SectionRepository sectionRepository,
             TransactionActionRecordRepository transactionActionRecordRepository,
             TransactionTemplate transactionTemplate,
-            LocalizationService localizationService,
-            @Value("${document.storage.path}") String basePath) {
+            FileStorage fileStorage,
+            LocalizationService localizationService) {
         this.sectionRepository = sectionRepository;
         this.transactionActionRepository = transactionActionRecordRepository;
         this.transactionTemplate = transactionTemplate;
+        this.fileStorage = fileStorage;
         this.localizationService = localizationService;
-        this.basePath = basePath;
     }
 
     /**
@@ -57,20 +52,18 @@ public class SectionServiceImpl implements SectionService {
      */
     @Override
     public DataRecordDetail uploadSection(int dataRecordId, MultipartFile sectionFile) {
-        Path storagePath = Paths.get(basePath);
-        createDirectoryIfNotPresent(storagePath);
         //ToDo fix nulls
         //ToDo fix path. Store only the relative path in the database. Check the variables in application.properties
         //ToDo fix return type of the method
         //But, the good part is, that the core of the idea, works!
         String fileName = sectionFile.getOriginalFilename();
-        Path filePath = Paths.get(basePath, fileName);
+        String systemFileName = fileStorage.generateSystemFileName(fileName);
 
         TransactionActionRecord actionRecord = transactionTemplate
-                .execute((status) -> createTransactionAction(status, filePath));
+                .execute(status -> addCreateTransactionAction(status, systemFileName));
 
         Section section = transactionTemplate
-                .execute((status -> storeSection(actionRecord, dataRecordId, sectionFile, filePath)));
+                .execute(status -> storeSection(actionRecord, dataRecordId, sectionFile, systemFileName));
 
         List<SectionDetail> sectionDetails = section.getDataRecord().getSections().stream()
                 .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
@@ -83,15 +76,17 @@ public class SectionServiceImpl implements SectionService {
         return recordDetail;
     }
 
+    //ToDo update postman collections in resources.
+    //ToDo fix get all ordering of sorts with an additional field
+
     /**
      * Deletes a section from
      *
      * @param dataRecordId the id of the data record
      * @param sectionId    the id of the section
-     * @return the updated section details
      */
     @Override
-    public DataRecordDetail deleteSection(int dataRecordId, int sectionId) {
+    public void deleteSection(int dataRecordId, int sectionId) {
         DataRecord dataRecord = sectionRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
@@ -112,56 +107,24 @@ public class SectionServiceImpl implements SectionService {
         }
 
         Section removedSection = sections.getFirst();
-        removeStoredSection(removedSection);
-        dataRecord.getSections().remove(removedSection);
+        TransactionActionRecord actionRecord = addDeleteTransactionAction(removedSection.getStorageLocation());
+        deleteSection(dataRecord, removedSection, actionRecord);
 
-        List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
-                .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
-                .toList();
-
-        dataRecord = sectionRepository.saveAndFlush(dataRecord);
-
-        DataRecordDetail recordDetail = DataRecordDetail
-                .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
-
+        sectionRepository.saveAndFlush(dataRecord);
         logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
-        return recordDetail;
     }
 
-    private void createDirectoryIfNotPresent(Path storagePath) {
-        try {
-            Files.createDirectories(storagePath);
-        } catch (IOException e) {
-            logger.error("Unable to create a base directory '{}'", basePath);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
-        }
+    private void deleteSection(
+            DataRecord dataRecord,
+            Section removedSection,
+            TransactionActionRecord actionRecord) {
+        dataRecord.getSections().remove(removedSection);
+        actionRecord.setCommitted(true);
     }
 
-    private void storeSection(MultipartFile sectionFile, Path filePath) {
-        try {
-            sectionFile.transferTo(filePath);
-        } catch (Exception e) {
-            logger.error("Unable to store file '{}'", filePath);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
-        }
-    }
-
-    private void removeStoredSection(Section removedSection) {
-        String storageLocation = removedSection.getStorageLocation();
-        try {
-            Files.delete(Paths.get(storageLocation));
-        } catch (IOException e) {
-            logger.error("Unable to remove stored section '{}'", storageLocation);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
-        }
-    }
-
-    private TransactionActionRecord createTransactionAction(TransactionStatus status, Path filePath) {
+    private TransactionActionRecord addCreateTransactionAction(TransactionStatus status, String systemFileName) {
         TransactionActionRecord actionRecord = new TransactionActionRecord();
-        actionRecord.setStorageLocation(filePath.toString());
+        actionRecord.setStorageLocation(systemFileName);
         actionRecord.setActionType(ActionType.CREATE);
 
         transactionActionRepository.save(actionRecord);
@@ -169,7 +132,20 @@ public class SectionServiceImpl implements SectionService {
         return actionRecord;
     }
 
-    private Section storeSection(TransactionActionRecord actionRecord, int dataRecordId, MultipartFile sectionFile, Path filePath) {
+    private TransactionActionRecord addDeleteTransactionAction(String systemFileName) {
+        TransactionActionRecord actionRecord = new TransactionActionRecord();
+        actionRecord.setStorageLocation(systemFileName);
+        actionRecord.setActionType(ActionType.DELETE);
+
+        transactionActionRepository.save(actionRecord);
+
+        return actionRecord;
+    }
+
+    private Section storeSection(TransactionActionRecord actionRecord,
+                                 int dataRecordId,
+                                 MultipartFile sectionFile,
+                                 String systemFileName) {
         DataRecord dataRecord = sectionRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
@@ -180,10 +156,10 @@ public class SectionServiceImpl implements SectionService {
 
         Section sectionRecord = new Section();
         sectionRecord.setFileName(sectionFile.getOriginalFilename());
-        sectionRecord.setStorageLocation(filePath.toString());
+        sectionRecord.setStorageLocation(systemFileName);
         dataRecord.addSection(sectionRecord);
 
-        storeSection(sectionFile, filePath);
+        fileStorage.storeSection(sectionFile, systemFileName);
 
         actionRecord.setCommitted(true);
 

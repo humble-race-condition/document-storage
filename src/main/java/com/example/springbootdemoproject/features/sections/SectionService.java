@@ -18,7 +18,6 @@ public interface SectionService {
      *
      * @param dataRecordId the id of the data record
      * @param sectionId    the id of the section
-     * @return the updated section details
      */
-    DataRecordDetail deleteSection(int dataRecordId, int sectionId);
+    void deleteSection(int dataRecordId, int sectionId);
 }

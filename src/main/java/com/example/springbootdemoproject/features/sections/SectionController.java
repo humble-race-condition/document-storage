@@ -25,8 +25,8 @@ public class SectionController {
     }
 
     @DeleteMapping("/{sectionId}")
-    public ResponseEntity<DataRecordDetail> deleteSection(@PathVariable int dataRecordId, @PathVariable int sectionId) {
-        DataRecordDetail recordDetail = sectionService.deleteSection(dataRecordId, sectionId);
-        return ResponseEntity.ok(recordDetail);
+    public ResponseEntity<Void> deleteSection(@PathVariable int dataRecordId, @PathVariable int sectionId) {
+        sectionService.deleteSection(dataRecordId, sectionId);
+        return ResponseEntity.noContent().build();
     }
 }
