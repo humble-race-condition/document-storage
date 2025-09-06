@@ -20,9 +20,9 @@ public interface FileStorage {
     String generateSystemFileName(String originalFileName);
 
     /**
-     * Removes the section file using the system file name
+     * Deletes the section file using the system file name
      *
      * @param systemFileName the system file name
      */
-    void removeSection(String systemFileName);
+    void deleteSection(String systemFileName);
 }

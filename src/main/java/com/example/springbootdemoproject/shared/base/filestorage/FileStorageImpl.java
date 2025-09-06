@@ -68,12 +68,12 @@ public class FileStorageImpl implements FileStorage {
     }
 
     /**
-     * Removes the section file using the system file name
+     * Deletes the section file using the system file name
      *
      * @param systemFileName the system file name
      */
     @Override
-    public void removeSection(String systemFileName) {
+    public void deleteSection(String systemFileName) {
         Path filePath = getFullPath(systemFileName);
         try {
             Files.delete(filePath);

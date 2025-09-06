@@ -6,7 +6,6 @@ import com.example.springbootdemoproject.entities.TransactionActionRecord;
 import com.example.springbootdemoproject.shared.base.apimessages.LocalizationService;
 import com.example.springbootdemoproject.shared.base.exceptions.ErrorMessage;
 import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInputException;
-import com.example.springbootdemoproject.shared.base.exceptions.InvalidSystemStateException;
 import com.example.springbootdemoproject.shared.base.filestorage.FileStorage;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
@@ -19,10 +18,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,16 +113,16 @@ public class SectionServiceImpl implements SectionService {
                 .execute(status -> addDeleteTransactionAction(status, removedSection.getStorageLocation()));
         Objects.requireNonNull(actionRecord);
 
-        transactionTemplate.executeWithoutResult(status -> removeSection(dataRecord, removedSection, actionRecord));
+        transactionTemplate.executeWithoutResult(status -> deleteSection(dataRecord, removedSection, actionRecord));
 
         logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
     }
 
-    private void removeSection(
+    private void deleteSection(
             DataRecord dataRecord,
             Section removedSection,
             TransactionActionRecord actionRecord) {
-        fileStorage.removeSection(removedSection.getStorageLocation());
+        fileStorage.deleteSection(removedSection.getStorageLocation());
         dataRecord.getSections().remove(removedSection);
         actionRecord.setCommitted(true);
     }
