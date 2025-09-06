@@ -9,8 +9,8 @@ import com.example.springbootdemoproject.shared.base.exceptions.InvalidClientInp
 import com.example.springbootdemoproject.shared.base.filestorage.FileStorage;
 import com.example.springbootdemoproject.shared.base.models.responses.DataRecordDetail;
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
-import com.example.springbootdemoproject.shared.base.trasnasctionactions.ActionType;
-import com.example.springbootdemoproject.shared.base.trasnasctionactions.TransactionActionRecordRepository;
+import com.example.springbootdemoproject.shared.base.filestorage.ActionType;
+import com.example.springbootdemoproject.shared.base.filestorage.TransactionActionRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
