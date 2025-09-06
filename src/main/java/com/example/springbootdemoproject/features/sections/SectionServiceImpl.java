@@ -108,12 +108,8 @@ public class SectionServiceImpl implements SectionService {
         }
 
         Section removedSection = sections.getFirst();
-
-        TransactionActionRecord actionRecord = transactionTemplate
-                .execute(status -> addDeleteTransactionAction(status, removedSection.getStorageLocation()));
-        Objects.requireNonNull(actionRecord);
-
-        transactionTemplate.executeWithoutResult(status -> deleteSection(dataRecord, removedSection, actionRecord));
+        TransactionActionRecord actionRecord = addDeleteTransactionAction(removedSection.getStorageLocation());
+        deleteSection(dataRecord, removedSection, actionRecord);
 
         logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
     }
@@ -122,7 +118,6 @@ public class SectionServiceImpl implements SectionService {
             DataRecord dataRecord,
             Section removedSection,
             TransactionActionRecord actionRecord) {
-        fileStorage.deleteSection(removedSection.getStorageLocation());
         dataRecord.getSections().remove(removedSection);
         actionRecord.setCommitted(true);
     }
@@ -137,7 +132,7 @@ public class SectionServiceImpl implements SectionService {
         return actionRecord;
     }
 
-    private TransactionActionRecord addDeleteTransactionAction(TransactionStatus status, String systemFileName) {
+    private TransactionActionRecord addDeleteTransactionAction(String systemFileName) {
         TransactionActionRecord actionRecord = new TransactionActionRecord();
         actionRecord.setStorageLocation(systemFileName);
         actionRecord.setActionType(ActionType.DELETE);
