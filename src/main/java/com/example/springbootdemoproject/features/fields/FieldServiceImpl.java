@@ -81,7 +81,7 @@ public class FieldServiceImpl implements FieldService {
                     .ifPresent(dataRecord::removeField);
         }
 
-        dataRecord = fieldRepository.saveAndFlush(dataRecord);
+        fieldRepository.saveAndFlush(dataRecord);
 
         //ToDo do not return DataRecordDetail, Return only field details. This prevents a database fetch. Do this in section service as well
         logger.info("Removed fields for data record with id '{}'", id);

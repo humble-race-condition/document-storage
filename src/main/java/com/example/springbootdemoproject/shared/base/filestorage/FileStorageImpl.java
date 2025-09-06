@@ -57,7 +57,7 @@ public class FileStorageImpl implements FileStorage {
     public void storeSection(MultipartFile sectionFile, String systemFileName) {
         createBaseDirectoryIfNotPresent();
 
-        Path filePath = Paths.get(basePath, systemFileName);
+        Path filePath = getFullPath(systemFileName);
         try {
             sectionFile.transferTo(filePath);
         } catch (Exception e) {
@@ -65,6 +65,27 @@ public class FileStorageImpl implements FileStorage {
             ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
             throw new InvalidSystemStateException(errorMessage, e);
         }
+    }
+
+    /**
+     * Removes the section file using the system file name
+     *
+     * @param systemFileName the system file name
+     */
+    @Override
+    public void removeSection(String systemFileName) {
+        Path filePath = getFullPath(systemFileName);
+        try {
+            Files.delete(filePath);
+        } catch (IOException e) {
+            logger.error("Unable to remove stored section '{}'", filePath);
+            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
+            throw new InvalidSystemStateException(errorMessage, e);
+        }
+    }
+
+    private Path getFullPath(String systemFileName) {
+        return Paths.get(basePath, systemFileName);
     }
 
     private void createBaseDirectoryIfNotPresent() {
