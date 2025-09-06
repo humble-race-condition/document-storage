@@ -76,9 +76,6 @@ public class SectionServiceImpl implements SectionService {
         return recordDetail;
     }
 
-    //ToDo update postman collections in resources.
-    //ToDo fix get all ordering of sorts with an additional field
-
     /**
      * Deletes a section from
      *
