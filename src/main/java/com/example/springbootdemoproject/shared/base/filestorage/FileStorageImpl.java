@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Service
@@ -43,7 +44,8 @@ public class FileStorageImpl implements FileStorage {
         int lastIndexOf = originalFileName.lastIndexOf(".");
         String fileName = originalFileName.substring(0, lastIndexOf);
         String extension = originalFileName.substring(lastIndexOf);
-        String systemFileName = String.format("%s%s%s", fileName, LocalDateTime.now(), extension);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssnnnnnnnnn");
+        String systemFileName = String.format("%s_%s%s", fileName, LocalDateTime.now().format(formatter), extension);
         return systemFileName;
     }
 
