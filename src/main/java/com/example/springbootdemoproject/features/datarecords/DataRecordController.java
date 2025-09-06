@@ -25,8 +25,8 @@ public class DataRecordController {
      */
     @GetMapping
     public ResponseEntity<DataRecordContainerResponse> getDataRecords(
-            @ModelAttribute @Valid FilterCriteria filterCriteria,
-            @ModelAttribute @Valid PaginationCriteria paginationCriteria) {
+            @ModelAttribute FilterCriteria filterCriteria,
+            @ModelAttribute PaginationCriteria paginationCriteria) {
         DataRecordContainerResponse dataRecords = dataRecordService.getDataRecords(filterCriteria, paginationCriteria);
         return ResponseEntity.ok().body(dataRecords);
     }
