@@ -28,10 +28,14 @@ public class DataRecordServiceImpl implements DataRecordService {
     private static final Logger logger = LoggerFactory.getLogger(DataRecordServiceImpl.class);
 
     private final DataRecordRepository dataRecordRepository;
+    private final RegisterCriteriaParser registerCriteriaParser;
     private final LocalizationService localizationService;
 
-    public DataRecordServiceImpl(DataRecordRepository dataRecordRepository, LocalizationService localizationService) {
+    public DataRecordServiceImpl(DataRecordRepository dataRecordRepository,
+                                 RegisterCriteriaParser registerCriteriaParser,
+                                 LocalizationService localizationService) {
         this.dataRecordRepository = dataRecordRepository;
+        this.registerCriteriaParser = registerCriteriaParser;
         this.localizationService = localizationService;
     }
 
@@ -73,8 +77,8 @@ public class DataRecordServiceImpl implements DataRecordService {
      */
     @Override
     public DataRecordContainerResponse getDataRecords(FilterCriteria filterCriteria, PaginationCriteria paginationCriteria) {
-        Pageable pageable = RegisterCriteriaParser.parsePaginationCriteria(paginationCriteria);
-        Specification<DataRecord> spec = RegisterCriteriaParser.parseFilterCriteria(filterCriteria);
+        Pageable pageable = registerCriteriaParser.parsePaginationCriteria(paginationCriteria);
+        Specification<DataRecord> spec = registerCriteriaParser.parseFilterCriteria(filterCriteria);
 
         Page<DataRecord> dataRecords = dataRecordRepository.findAll(spec, pageable);
 
