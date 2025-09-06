@@ -79,11 +79,36 @@ public class FileStorageImpl implements FileStorage {
         Path filePath = getFullPath(systemFileName);
         try {
             Files.delete(filePath);
+            logger.info("Deleted file '{}' on delete section", filePath);
         } catch (IOException e) {
-            logger.error("Unable to remove stored section '{}'", filePath);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
+            handleException(e, filePath);
         }
+    }
+
+    /**
+     * Deletes the section file using the system file name, if it is present
+     *
+     * @param systemFileName the system file name
+     */
+    @Override
+    public void deleteSectionIfPresent(String systemFileName) {
+        Path filePath = getFullPath(systemFileName);
+        try {
+            boolean exists = Files.deleteIfExists(filePath);
+            if (exists) {
+                logger.info("Deleted file '{}' on delete if present", filePath);
+            } else {
+                logger.info("File '{}' not found. Nothing to delete", filePath);
+            }
+        } catch (IOException e) {
+            handleException(e, filePath);
+        }
+    }
+
+    private void handleException(IOException e, Path filePath) {
+        logger.error("Unable to remove stored section '{}'", filePath);
+        ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
+        throw new InvalidSystemStateException(errorMessage, e);
     }
 
     private Path getFullPath(String systemFileName) {

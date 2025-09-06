@@ -25,4 +25,11 @@ public interface FileStorage {
      * @param systemFileName the system file name
      */
     void deleteSection(String systemFileName);
+
+    /**
+     * Deletes the section file using the system file name, if it is present
+     *
+     * @param systemFileName the system file name
+     */
+    void deleteSectionIfPresent(String systemFileName);
 }
