@@ -10,6 +10,54 @@
 			"name": "Data Records",
 			"item": [
 				{
+					"name": "Get All Data Records",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records?filter=contains:title:1&filter=contains:title:2&page=0&size=3&sort=title:desc&sort=id:asc&operator=or",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "contains:title:1"
+								},
+								{
+									"key": "filter",
+									"value": "contains:title:2"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "3"
+								},
+								{
+									"key": "sort",
+									"value": "title:desc"
+								},
+								{
+									"key": "sort",
+									"value": "id:asc"
+								},
+								{
+									"key": "operator",
+									"value": "or"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get Data Record by Id",
 					"request": {
 						"method": "GET",
@@ -28,54 +76,6 @@
 								{
 									"key": "id",
 									"value": "{{dataRecordId}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Data Records",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/data-records?filter=contains:title:1&filter=equals:title:Demo 4&page=0&size=3&sort=id:asc&sort=title:desc&operator=or",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"data-records"
-							],
-							"query": [
-								{
-									"key": "filter",
-									"value": "contains:title:1"
-								},
-								{
-									"key": "filter",
-									"value": "equals:title:Demo 4"
-								},
-								{
-									"key": "page",
-									"value": "0"
-								},
-								{
-									"key": "size",
-									"value": "3"
-								},
-								{
-									"key": "sort",
-									"value": "id:asc"
-								},
-								{
-									"key": "sort",
-									"value": "title:desc"
-								},
-								{
-									"key": "operator",
-									"value": "or"
 								}
 							]
 						}
@@ -262,7 +262,7 @@
 								{
 									"key": "section",
 									"type": "file",
-									"src": ""
+									"src": "/C:/Users/Vasil/Desktop/9001858216_A.pdf"
 								}
 							]
 						},
@@ -294,13 +294,7 @@
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "section",
-									"type": "file",
-									"src": "/C:/Users/Vasil/Desktop/9001858216_A.pdf"
-								}
-							]
+							"formdata": []
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/data-records/:id/sections/:sectionId",
