@@ -1,15 +1,9 @@
 package com.example.springbootdemoproject.shared.base.registers;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.*;
-
-public class RegisterCriteriaParser {
-    private static final String SEPARATOR = ":";
-
+public interface RegisterCriteriaParser {
 
     /**
      * Parses all the pagination criteria
@@ -17,25 +11,7 @@ public class RegisterCriteriaParser {
      * @param paginationCriteria criteria for the pagination and sort order
      * @return a {@code Pageable}
      */
-    public static Pageable parsePaginationCriteria(PaginationCriteria paginationCriteria) {
-        int page = Math.max(paginationCriteria.page(), 0);
-        int size = Math.max(paginationCriteria.size(), 1);
-        String[] sort = Optional.ofNullable(paginationCriteria.sort()).orElse(new String[0]);
-        //ToDo Sort order needs to be deterministic
-        List<Sort.Order> orders = new ArrayList<>();
-        for (String sortParam : sort) {
-            String[] parts = sortParam.split(SEPARATOR);
-            if (parts.length == 2) {
-                orders.add(new Sort.Order(Sort.Direction.fromString(parts[1]), parts[0]));
-            } else {
-                orders.add(new Sort.Order(Sort.Direction.ASC, parts[0]));
-            }
-        }
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-
-        return pageable;
-    }
+    Pageable parsePaginationCriteria(PaginationCriteria paginationCriteria);
 
     /**
      * Parses all the filter criteria and their logical operator and returns a {@code Specification}
@@ -44,40 +20,5 @@ public class RegisterCriteriaParser {
      * @param <T>            type of the entity
      * @return a {@code Specification}
      */
-    public static <T> Specification<T> parseFilterCriteria(FilterCriteria filterCriteria) {
-        if (filterCriteria.filter() == null || filterCriteria.filter().length == 0) {
-            return Specification.anyOf(new ArrayList<>());
-        }
-
-        String operator = Optional.ofNullable(filterCriteria.operator())
-                .map(String::toUpperCase)
-                .orElse("AND");
-        List<Specification<T>> specifications = Arrays.stream(filterCriteria.filter())
-                .map(s -> {
-                    int indexOfFirstSeparator = s.indexOf(SEPARATOR);
-                    String filterOperator = s.substring(0, indexOfFirstSeparator).toUpperCase();
-                    int indexOfSecondSeparator = s.indexOf(SEPARATOR, indexOfFirstSeparator + 1);
-                    String columnName = s.substring(indexOfFirstSeparator + 1, indexOfSecondSeparator);
-                    String value = s.substring(indexOfSecondSeparator + 1);
-                    Specification<T> specification = switch (filterOperator) {
-                        case "EQUALS" -> SpecificationHandlers.equals(columnName, value);
-                        case "STARTSWITH" -> SpecificationHandlers.startsWith(columnName, value);
-                        case "CONTAINS" -> SpecificationHandlers.contains(columnName, value);
-                        default -> null;
-                    };
-
-                    return specification;
-                })
-                .filter(Objects::nonNull)
-                .toList();
-
-
-        Specification<T> specification = switch (operator) {
-            case "AND" -> Specification.allOf(specifications);
-            case "OR" -> Specification.anyOf(specifications);
-            default -> null;
-        };
-
-        return specification;
-    }
+    <T> Specification<T> parseFilterCriteria(FilterCriteria filterCriteria);
 }
