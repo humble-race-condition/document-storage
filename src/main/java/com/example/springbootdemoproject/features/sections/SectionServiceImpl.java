@@ -11,6 +11,8 @@ import com.example.springbootdemoproject.shared.base.models.responses.DataRecord
 import com.example.springbootdemoproject.shared.base.models.responses.SectionDetail;
 import com.example.springbootdemoproject.shared.base.trasnasctionactions.ActionType;
 import com.example.springbootdemoproject.shared.base.trasnasctionactions.TransactionActionRecordRepository;
+import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SectionServiceImpl implements SectionService {
@@ -67,10 +70,10 @@ public class SectionServiceImpl implements SectionService {
         Path filePath = Paths.get(basePath, fileName);
 
         TransactionActionRecord actionRecord = transactionTemplate
-                .execute((status) -> createTransactionAction(status, filePath));
+                .execute(status -> addCreateTransactionAction(status, filePath));
 
         Section section = transactionTemplate
-                .execute((status -> storeSection(actionRecord, dataRecordId, sectionFile, filePath)));
+                .execute(status -> storeSection(actionRecord, dataRecordId, sectionFile, filePath));
 
         List<SectionDetail> sectionDetails = section.getDataRecord().getSections().stream()
                 .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
@@ -112,20 +115,31 @@ public class SectionServiceImpl implements SectionService {
         }
 
         Section removedSection = sections.getFirst();
-        removeStoredSection(removedSection);
-        dataRecord.getSections().remove(removedSection);
+
+        TransactionActionRecord actionRecord = transactionTemplate
+                .execute(status -> addDeleteTransactionAction(status, Path.of(removedSection.getStorageLocation())));
+        Objects.requireNonNull(actionRecord);
+
+        transactionTemplate.executeWithoutResult(status -> removeSection(dataRecord, removedSection, actionRecord));
 
         List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
                 .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
                 .toList();
-
-        dataRecord = sectionRepository.saveAndFlush(dataRecord);
 
         DataRecordDetail recordDetail = DataRecordDetail
                 .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
 
         logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
         return recordDetail;
+    }
+
+    private void removeSection(
+            DataRecord dataRecord,
+            Section removedSection,
+            TransactionActionRecord actionRecord) {
+        removeStoredSection(removedSection);
+        dataRecord.getSections().remove(removedSection);
+        actionRecord.setCommitted(true);
     }
 
     private void createDirectoryIfNotPresent(Path storagePath) {
@@ -159,10 +173,20 @@ public class SectionServiceImpl implements SectionService {
         }
     }
 
-    private TransactionActionRecord createTransactionAction(TransactionStatus status, Path filePath) {
+    private TransactionActionRecord addCreateTransactionAction(TransactionStatus status, Path filePath) {
         TransactionActionRecord actionRecord = new TransactionActionRecord();
         actionRecord.setStorageLocation(filePath.toString());
         actionRecord.setActionType(ActionType.CREATE);
+
+        transactionActionRepository.save(actionRecord);
+
+        return actionRecord;
+    }
+
+    private @Nonnull TransactionActionRecord addDeleteTransactionAction(TransactionStatus status, Path filePath) {
+        TransactionActionRecord actionRecord = new TransactionActionRecord();
+        actionRecord.setStorageLocation(filePath.toString());
+        actionRecord.setActionType(ActionType.DELETE);
 
         transactionActionRepository.save(actionRecord);
 
