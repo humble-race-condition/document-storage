@@ -127,20 +127,9 @@ public class SectionServiceImpl implements SectionService {
             DataRecord dataRecord,
             Section removedSection,
             TransactionActionRecord actionRecord) {
-        removeStoredSection(removedSection);
+        fileStorage.removeSection(removedSection.getStorageLocation());
         dataRecord.getSections().remove(removedSection);
         actionRecord.setCommitted(true);
-    }
-
-    private void removeStoredSection(Section removedSection) {
-        String storageLocation = removedSection.getStorageLocation();
-        try {
-            Files.delete(Paths.get(storageLocation));
-        } catch (IOException e) {
-            logger.error("Unable to remove stored section '{}'", storageLocation);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
-        }
     }
 
     private TransactionActionRecord addCreateTransactionAction(TransactionStatus status, String systemFileName) {
