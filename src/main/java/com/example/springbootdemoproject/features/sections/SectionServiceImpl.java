@@ -12,7 +12,6 @@ import com.example.springbootdemoproject.shared.base.models.responses.SectionDet
 import com.example.springbootdemoproject.shared.base.trasnasctionactions.ActionType;
 import com.example.springbootdemoproject.shared.base.trasnasctionactions.TransactionActionRecordRepository;
 import jakarta.annotation.Nonnull;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,8 +59,6 @@ public class SectionServiceImpl implements SectionService {
      */
     @Override
     public DataRecordDetail uploadSection(int dataRecordId, MultipartFile sectionFile) {
-        Path storagePath = Paths.get(basePath);
-        createDirectoryIfNotPresent(storagePath);
         //ToDo fix nulls
         //ToDo fix path. Store only the relative path in the database. Check the variables in application.properties
         //ToDo fix return type of the method
@@ -86,15 +83,17 @@ public class SectionServiceImpl implements SectionService {
         return recordDetail;
     }
 
+    //ToDo update postman collections in resources.
+    //ToDo fix get all ordering of sorts with an additional field
+
     /**
      * Deletes a section from
      *
      * @param dataRecordId the id of the data record
      * @param sectionId    the id of the section
-     * @return the updated section details
      */
     @Override
-    public DataRecordDetail deleteSection(int dataRecordId, int sectionId) {
+    public void deleteSection(int dataRecordId, int sectionId) {
         DataRecord dataRecord = sectionRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
@@ -122,15 +121,7 @@ public class SectionServiceImpl implements SectionService {
 
         transactionTemplate.executeWithoutResult(status -> removeSection(dataRecord, removedSection, actionRecord));
 
-        List<SectionDetail> sectionDetails = dataRecord.getSections().stream()
-                .map(f -> new SectionDetail(f.getId(), f.getFileName(), f.getStorageLocation()))
-                .toList();
-
-        DataRecordDetail recordDetail = DataRecordDetail
-                .withSections(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), sectionDetails);
-
         logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
-        return recordDetail;
     }
 
     private void removeSection(
@@ -142,15 +133,7 @@ public class SectionServiceImpl implements SectionService {
         actionRecord.setCommitted(true);
     }
 
-    private void createDirectoryIfNotPresent(Path storagePath) {
-        try {
-            Files.createDirectories(storagePath);
-        } catch (IOException e) {
-            logger.error("Unable to create a base directory '{}'", basePath);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
-        }
-    }
+
 
     private void storeSection(MultipartFile sectionFile, Path filePath) {
         try {
