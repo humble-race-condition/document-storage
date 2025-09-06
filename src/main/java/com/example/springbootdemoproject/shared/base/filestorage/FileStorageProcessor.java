@@ -3,6 +3,7 @@ package com.example.springbootdemoproject.shared.base.filestorage;
 import com.example.springbootdemoproject.entities.TransactionActionRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +15,14 @@ public class FileStorageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(FileStorageProcessor.class);
     private final TransactionActionRecordRepository repository;
     private final FileStorage fileStorage;
+    private final int expirationInHours;
 
-    public FileStorageProcessor(TransactionActionRecordRepository repository, FileStorage fileStorage) {
+    public FileStorageProcessor(TransactionActionRecordRepository repository,
+                                FileStorage fileStorage,
+                                @Value("${document.storage.process.transactions.expiration.in.hours}") int expirationInHours) {
         this.repository = repository;
         this.fileStorage = fileStorage;
+        this.expirationInHours = expirationInHours;
     }
 
     /**
@@ -31,7 +36,7 @@ public class FileStorageProcessor {
     @Scheduled(cron = "${document.storage.process.transactions.cron}")
     public synchronized void processTransactions() {
         logger.info("Start processing transactions");
-        LocalDateTime expirationTime = LocalDateTime.now().minusHours(1);
+        LocalDateTime expirationTime = LocalDateTime.now().minusHours(expirationInHours);
         List<TransactionActionRecord> transactionActions = repository.findFirstNotProcessed(expirationTime);
         while (!transactionActions.isEmpty()) {
             for (TransactionActionRecord transactionActionRecord : transactionActions) {
