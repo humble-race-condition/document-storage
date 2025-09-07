@@ -9,7 +9,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/humble-race-condition/document-storage.git', branch: "${env.BRANCH_NAME}"
+                checkout scm
+
             }
         }
 
