@@ -11,6 +11,8 @@ pipeline {
             steps {
                 echo "Checkout branch: ${env.BRANCH_NAME}"
                 checkout scm
+                echo "Checkout branch2: ${env.BRANCH_NAME}"
+
             }
         }
 
@@ -31,12 +33,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-            // Force the stage bubble to red if not already
-            script {
-                if (currentBuild.result != 'FAILURE') {
-                    currentBuild.result = 'FAILURE'
-                }
-            }
         }
     }
 }
