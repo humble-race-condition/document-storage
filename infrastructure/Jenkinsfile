@@ -29,6 +29,12 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
+            // Force the stage bubble to red if not already
+            script {
+                if (currentBuild.result != 'FAILURE') {
+                    currentBuild.result = 'FAILURE'
+                }
+            }
         }
     }
 }
