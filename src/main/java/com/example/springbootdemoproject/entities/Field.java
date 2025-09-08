@@ -15,9 +15,10 @@ public class Field {
     @GeneratedValue
     private int id;
 
-    private String Name;
+    private String name;
 
-    private String Value;
+    @Column(name = "field_value")
+    private String value;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "data_record_id", nullable = false)
@@ -43,19 +44,19 @@ public class Field {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public String getValue() {
-        return Value;
+        return value;
     }
 
     public void setValue(String value) {
-        Value = value;
+        this.value = value;
     }
 
     public DataRecord getDataRecord() {

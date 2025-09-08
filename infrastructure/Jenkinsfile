@@ -2,20 +2,36 @@ pipeline {
     agent any
 
     environment {
-        JAVA_HOME = "/usr/lib/jvm/java-21-openjdk"
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
+        JAVA_HOME = "${env.JAVA_21_HOME}"
+        PATH = "${env.JAVA_21_HOME}/bin:${env.PATH}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/humble-race-condition/document-storage.git', branch: '${env.BRANCH_NAME}'
+                echo "Checkout branch: ${env.BRANCH_NAME}"
+                checkout scm
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                echo "Build branch: ${env.BRANCH_NAME}"
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test build') {
+            steps {
+                echo "Test build: ${env.BRANCH_NAME}"
+                sh 'mvn clean test'
+            }
+        }
+
+        stage('Package build') {
+            steps {
+                echo "Package build: ${env.BRANCH_NAME}"
+                sh 'mvn clean package -DskipTests'
             }
         }
     }
@@ -29,7 +45,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-            currentBuild.result = 'FAILURE'
         }
     }
 }
