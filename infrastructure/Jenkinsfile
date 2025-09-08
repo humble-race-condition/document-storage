@@ -11,16 +11,27 @@ pipeline {
             steps {
                 echo "Checkout branch: ${env.BRANCH_NAME}"
                 checkout scm
-                echo "Checkout branch2: ${env.BRANCH_NAME}"
-
             }
         }
 
         stage('Build') {
             steps {
-                sh 'env | sort'
                 echo "Build branch: ${env.BRANCH_NAME}"
-                sh 'mvn clean package'
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test build') {
+            steps {
+                echo "Test build: ${env.BRANCH_NAME}"
+                sh 'mvn clean test'
+            }
+        }
+
+        stage('Package build') {
+            steps {
+                echo "Package build: ${env.BRANCH_NAME}"
+                sh 'mvn clean package -DskipTests'
             }
         }
     }
