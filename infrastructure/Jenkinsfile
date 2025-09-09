@@ -63,8 +63,7 @@ pipeline {
         stage('Build docker image') {
             steps {
                 echo "Build docker image for ${env.APP_FULL_NAME}"
-                sh 'rm -rf docker-build'
-                sh 'mkdir docker-build'
+                sh 'rm -rf docker-build && mkdir docker-build'
                 sh 'cp target/*.jar docker-build'
                 sh 'cp infrastructure/Dockerfile docker-build'
                 echo "Building Docker image with version: ${env.APP_VERSION}"
