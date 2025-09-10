@@ -63,8 +63,9 @@ pipeline {
             }
         }
 
-        stage("Docker Login") {
+        stage("Docker login") {
             steps {
+                echo "Docker login: ${env.APP_FULL_NAME}"
                 withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
                     sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
                 }
@@ -82,6 +83,15 @@ pipeline {
                   withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
                     sh "docker build -t $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME} -t $DOCKER_USER/${env.APP_NAME}:${env.APP_VERSION} -t $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}.${env.GIT_COMMIT} ."
                   }
+                }
+            }
+        }
+
+        stage("Docker push") {
+            steps {
+                echo "Docker push: ${env.APP_FULL_NAME}"
+                withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+                    sh "docker push -a $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}"
                 }
             }
         }
