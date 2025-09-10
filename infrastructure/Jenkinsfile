@@ -91,7 +91,9 @@ pipeline {
             steps {
                 echo "Docker push: ${env.APP_FULL_NAME}"
                 withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
-                    sh "docker push -a $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}"
+                    sh "docker push $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}"
+                    sh "docker push $DOCKER_USER/${env.APP_NAME}:${env.APP_VERSION}"
+                    sh "docker push $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}.${env.GIT_COMMIT}"
                 }
             }
         }
