@@ -63,6 +63,14 @@ pipeline {
             }
         }
 
+        stage("Docker Login") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+                    sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                }
+            }
+        }
+
         stage("Build docker image") {
             steps {
                 echo "Build docker image for ${env.APP_FULL_NAME}"
@@ -71,7 +79,9 @@ pipeline {
                 sh "cp infrastructure/Dockerfile docker-build"
                 echo "Building Docker image with version: ${env.APP_VERSION}"
                 dir("docker-build") {
-                    sh "docker build -t ${env.APP_NAME}:${env.BRANCH_NAME} -t ${env.APP_NAME}:${env.APP_VERSION} -t ${env.APP_NAME}:${env.BRANCH_NAME}.${env.GIT_COMMIT} ."
+                  withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+                    sh "docker build -t $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME} -t $DOCKER_USER/${env.APP_NAME}:${env.APP_VERSION} -t $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}.${env.GIT_COMMIT} ."
+                  }
                 }
             }
         }
