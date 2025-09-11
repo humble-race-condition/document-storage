@@ -20,52 +20,50 @@ pipeline {
         stage("Set package details") {
             steps {
                 script {
-                    env.APP_NAME = sh(
-                        script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout",
-                        returnStdout: true
-                    ).trim()
+                    withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+                        def repository = sh(
+                            script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout",
+                            returnStdout: true
+                        ).trim()
+                        env.APP_NAME = "${DOCKER_USER}/${repository}"
+                    }
                 }
+
                 echo "App name is ${env.APP_NAME}"
                 script {
-                    def packageVersion = sh(
+                    def artifactVersion = sh(
                         script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
                         returnStdout: true
                     ).trim()
+                    def gitHash = "${env.GIT_COMMIT}".substring(0, 8)
 
-                    env.APP_VERSION = "${packageVersion}.${env.BUILD_NUMBER}"
+                    env.APP_FINAL_TAG = "final.${env.BRANCH_NAME}.${artifactVersion}.${env.BUILD_NUMBER}.${gitHash}"
                 }
-                echo "App version is ${env.APP_VERSION}"
-                script {
-                    env.APP_FULL_NAME = "${env.APP_NAME}.${env.BRANCH_NAME}.${env.APP_VERSION}"
-                }
-                echo "App full name is ${env.APP_FULL_NAME}"
+
+                echo "App tag is ${env.APP_FINAL_TAG}"
             }
         }
 
         stage("Build") {
             steps {
-                echo "Build ${env.APP_FULL_NAME}"
                 sh "mvn clean compile"
             }
         }
 
         stage("Test build") {
             steps {
-                echo "Test ${env.APP_FULL_NAME}"
                 sh "mvn clean test"
             }
         }
 
         stage("Package build") {
             steps {
-                echo "Package build: ${env.APP_FULL_NAME}"
                 sh "mvn clean package -DskipTests"
             }
         }
 
         stage("Docker login") {
             steps {
-                echo "Docker login: ${env.APP_FULL_NAME}"
                 withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
                     sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
                 }
@@ -74,14 +72,12 @@ pipeline {
 
         stage("Build docker image") {
             steps {
-                echo "Build docker image for ${env.APP_FULL_NAME}"
                 sh "rm -rf docker-build && mkdir docker-build"
                 sh "cp target/*.jar docker-build"
                 sh "cp infrastructure/Dockerfile docker-build"
-                echo "Building Docker image with version: ${env.APP_VERSION}"
                 dir("docker-build") {
                   withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
-                    sh "docker build -t $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME} -t $DOCKER_USER/${env.APP_NAME}:${env.APP_VERSION} -t $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}.${env.GIT_COMMIT} ."
+                    sh "docker build -t ${env.APP_NAME}:${env.BRANCH_NAME} -t ${env.APP_NAME}:${env.APP_FINAL_TAG} ."
                   }
                 }
             }
@@ -89,11 +85,9 @@ pipeline {
 
         stage("Docker push") {
             steps {
-                echo "Docker push: ${env.APP_FULL_NAME}"
                 withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
-                    sh "docker push $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}"
-                    sh "docker push $DOCKER_USER/${env.APP_NAME}:${env.APP_VERSION}"
-                    sh "docker push $DOCKER_USER/${env.APP_NAME}:${env.BRANCH_NAME}.${env.GIT_COMMIT}"
+                    sh "docker push ${env.APP_NAME}:${env.BRANCH_NAME}"
+                    sh "docker push ${env.APP_NAME}:${env.APP_FINAL_TAG}"
                 }
             }
         }
