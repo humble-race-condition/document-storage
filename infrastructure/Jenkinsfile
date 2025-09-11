@@ -76,19 +76,21 @@ pipeline {
                 sh "cp target/*.jar docker-build"
                 sh "cp infrastructure/Dockerfile docker-build"
                 dir("docker-build") {
-                  withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
                     sh "docker build -t ${env.APP_NAME}:${env.BRANCH_NAME} -t ${env.APP_NAME}:${env.APP_FINAL_TAG} ."
-                  }
                 }
             }
         }
 
         stage("Docker push") {
             steps {
-                withCredentials([usernamePassword(credentialsId: "docker-hub-credentials", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
-                    sh "docker push ${env.APP_NAME}:${env.BRANCH_NAME}"
-                    sh "docker push ${env.APP_NAME}:${env.APP_FINAL_TAG}"
-                }
+                sh "docker push ${env.APP_NAME}:${env.BRANCH_NAME}"
+                sh "docker push ${env.APP_NAME}:${env.APP_FINAL_TAG}"
+            }
+        }
+
+        stage("Docker clean up") {
+            steps {
+                sh "docker rmi ${env.APP_NAME}:${env.BRANCH_NAME} ${env.APP_NAME}:${env.APP_FINAL_TAG}"
             }
         }
     }
