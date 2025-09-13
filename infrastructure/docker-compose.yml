@@ -5,7 +5,7 @@ services:
     image: vasilegov/document-storage:develop
     container_name: document-storage-develop
     volumes:
-      - document-storage-files:/app/files
+      - document-storage-files-develop:/app/files
     ports:
       - "40800:8080"
     depends_on:
@@ -19,9 +19,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 1234
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql-data-develop:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:
-  document-storage-files:
-  mysql-data:
+  document-storage-files-develop:
+  mysql-data-develop:
