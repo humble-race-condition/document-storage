@@ -32,15 +32,49 @@ public class SectionServiceImpl implements SectionService {
 
     public SectionServiceImpl(
             SectionRepository sectionRepository,
+            SectionRepository sectionDataRecordRepository,
             TransactionActionRecordRepository transactionActionRecordRepository,
             TransactionTemplate transactionTemplate,
             FileStorage fileStorage,
             LocalizationService localizationService) {
-        this.sectionRepository = sectionRepository;
+        this.sectionRepository = sectionDataRecordRepository;
         this.transactionActionRepository = transactionActionRecordRepository;
         this.transactionTemplate = transactionTemplate;
         this.fileStorage = fileStorage;
         this.localizationService = localizationService;
+    }
+
+    /**
+     * Downloads the section file by the section id
+     *
+     * @param dataRecordId the id of the data record
+     * @param sectionId the id of the section
+     * @return file of the section
+     */
+    @Override
+    public SectionData downloadSection(int dataRecordId, int sectionId) {
+        DataRecord dataRecord = sectionRepository.findByIdAndSectionId(dataRecordId, sectionId)
+                .orElseThrow(() -> {
+                    logger.error("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.download.datarecord.not.found", sectionId);
+                    return new InvalidClientInputException(errorMessage);
+                });
+
+        Section section = dataRecord.getSections().stream()
+                .filter(s -> s.getId() ==  sectionId)
+                .findFirst()
+                .orElseThrow(() -> {
+                    logger.error("Section with id '{}' not found for download", sectionId);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.download.section.not.found", sectionId);
+                    return new InvalidClientInputException(errorMessage);
+                });
+
+        byte[] bytes = fileStorage.downloadFile(section.getStorageLocation());
+
+        SectionData sectionData = new SectionData(bytes, section.getContentType());
+
+        logger.info("Downloaded section '{}'", sectionId);
+        return sectionData;
     }
 
     /**
@@ -154,6 +188,7 @@ public class SectionServiceImpl implements SectionService {
         Section sectionRecord = new Section();
         sectionRecord.setFileName(sectionFile.getOriginalFilename());
         sectionRecord.setStorageLocation(systemFileName);
+        sectionRecord.setContentType(sectionFile.getContentType());
         dataRecord.addSection(sectionRecord);
 
         fileStorage.storeSection(sectionFile, systemFileName);

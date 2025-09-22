@@ -5,6 +5,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface SectionService {
     /**
+     * Downloads the section file by the section id
+     *
+     * @param dataRecordId the id of the data record
+     * @param sectionId the id of the section
+     * @return file of the section
+     */
+    SectionData downloadSection(int dataRecordId, int sectionId);
+
+    /**
      * Uploads a section to the specified data record
      *
      * @param dataRecordId the data record to which the section is attached
