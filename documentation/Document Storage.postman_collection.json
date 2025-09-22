@@ -238,6 +238,45 @@
 			"name": "Sections",
 			"item": [
 				{
+					"name": "Download section",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/data-records/:id/sections/:sectionId/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"data-records",
+								":id",
+								"sections",
+								":sectionId",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{dataRecordId}}"
+								},
+								{
+									"key": "sectionId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Upload a section to a document",
 					"event": [
 						{
