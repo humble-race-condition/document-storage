@@ -47,7 +47,7 @@ pipeline {
                     def environment
                     switch(env.BRANCH_NAME) {
                       case "develop":
-                        environment = "dev"
+                        environment = "develop"
                         break
                       case "staging":
                         environment = "staging"
