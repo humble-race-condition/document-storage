@@ -23,7 +23,7 @@ In that selected folder run:
 Start the application:  
 `docker compose up -d`
 
-Postman collections can be found in `./documentation` folder.
+Postman collections can be found in `./documentation` folder in the repository.
 
 Swagger is also provided where port is `port` is set from the `.env` file. 
 The default port for the `main` branch is `40800`.  
