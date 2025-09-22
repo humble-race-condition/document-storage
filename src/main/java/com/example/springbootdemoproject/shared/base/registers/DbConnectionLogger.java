@@ -26,3 +26,6 @@ public class DbConnectionLogger {
         logger.info("Database URL: {}, Username: {}", url, username);
     }
 }
+
+//ToDo remove me
+//ToDo rename app jar to actual name in docker file
