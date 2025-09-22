@@ -5,10 +5,10 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # Copy the Spring Boot fat JAR into the container
-COPY *.jar app.jar
+COPY document-storage*.jar document-storage.jar
 
 # Expose the application port (adjust if needed)
 EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "document-storage.jar"]
