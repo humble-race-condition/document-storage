@@ -2,26 +2,28 @@ version: '3.9'
 
 services:
   document-storage:
-    image: vasilegov/document-storage:develop
-    container_name: document-storage-develop
+    image: vasilegov/document-storage:${ENVIRONMENT}
+    container_name: document-storage-${ENVIRONMENT}
+    environment:
+      - DB_PORT=${DB_PORT}
     volumes:
-      - document-storage-files-develop:/app/files
+      - document-storage-files-${ENVIRONMENT}:/app/files
     ports:
-      - "40800:8080"
+      - ${DOCUMENT_STORAGE_PORT}:8080
     depends_on:
       - database
 
   database:
     image: mysql:8.0.43
-    container_name: mysql-database
+    container_name: mysql-database-${ENVIRONMENT}
     ports:
-      - "3306:3306"
+      - ${DB_PORT}:3306
     environment:
       MYSQL_ROOT_PASSWORD: 1234
     volumes:
-      - mysql-data-develop:/var/lib/mysql
+      - mysql-data-${ENVIRONMENT}:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:
-  document-storage-files-develop:
-  mysql-data-develop:
+  document-storage-files-${ENVIRONMENT}:
+  mysql-data-${ENVIRONMENT}:
