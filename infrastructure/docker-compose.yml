@@ -7,7 +7,7 @@ services:
     environment:
       - DB_PORT=${DB_PORT}
     volumes:
-      - document-storage-files-${ENVIRONMENT}:/app/files
+      - document-storage-files:/app/files
     ports:
       - ${DOCUMENT_STORAGE_PORT}:8080
     depends_on:
@@ -21,9 +21,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 1234
     volumes:
-      - mysql-data-${ENVIRONMENT}:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:
-  document-storage-files-${ENVIRONMENT}:
-  mysql-data-${ENVIRONMENT}:
+  document-storage-files:
+    name: document-storage-files-${ENVIRONMENT}
+  mysql-data:
+    name: mysql-data-${ENVIRONMENT}
