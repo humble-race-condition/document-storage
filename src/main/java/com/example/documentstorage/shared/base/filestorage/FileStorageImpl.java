@@ -32,6 +32,28 @@ public class FileStorageImpl implements FileStorage {
     }
 
     /**
+     * Downloads the file by the given file name
+     *
+     * @param systemFileName the system file name
+     * @return the system file name
+     */
+    @Override
+    public byte[] downloadFile(String systemFileName) {
+        Objects.requireNonNull(systemFileName, () -> localizationService.getMessage("shared.base.filestorage.on.download.file.system.file.name.null"));
+        Path filePath = getFullPath(systemFileName);
+        try {
+            byte[] bytes = Files.readAllBytes(filePath);
+            logger.info("Read file '{}' on download section", filePath);
+
+            return bytes;
+        } catch (IOException e) {
+            logger.error("Unable to read stored section '{}'", filePath);
+            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
+            throw new InvalidSystemStateException(errorMessage, e);
+        }
+    }
+
+    /**
      * Generates the system file name based on the original file name
      *
      * @param originalFileName the original file name

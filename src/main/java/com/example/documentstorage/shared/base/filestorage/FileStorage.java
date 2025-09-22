@@ -12,6 +12,14 @@ public interface FileStorage {
     void storeSection(MultipartFile sectionFile, String systemFileName);
 
     /**
+     * Downloads the file by the given file name
+     *
+     * @param systemFileName the system file name
+     * @return the system file name
+     */
+    byte[] downloadFile(String systemFileName);
+
+    /**
      * Generates the system file name based on the original file name
      *
      * @param originalFileName the original file name

@@ -1,6 +1,8 @@
 package com.example.documentstorage.features.sections;
 
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +15,16 @@ public class SectionController {
 
     public SectionController(SectionService sectionService) {
         this.sectionService = sectionService;
+    }
+
+    @GetMapping("/{sectionId}/download")
+    public ResponseEntity<byte[]> downloadSection(@PathVariable int dataRecordId, @PathVariable int sectionId) {
+        SectionData sectionData = sectionService.downloadSection(dataRecordId, sectionId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, sectionData.contentDisposition())
+                .contentType(MediaType.parseMediaType(sectionData.contentType()))
+                .body(sectionData.content());
     }
 
     //ToDo Soft Delete on data records
