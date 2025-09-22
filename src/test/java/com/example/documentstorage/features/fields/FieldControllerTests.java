@@ -56,13 +56,23 @@ class FieldControllerTests {
                 .hasSize(0);
         assertThat(actualResponse.fields())
                 .isNotNull()
-                .hasSize(0);
-        assertThat(actualResponse.fields().get(0).id())
-                .isEqualTo();
-        assertThat(actualResponse.fields().get(1));
-        assertThat(actualResponse.fields().get(2));
-        assertThat(actualResponse.fields().get(3));
-        assertThat(actualResponse.fields().get(4));
+                .hasSize(5);
+        assertThat(actualResponse.fields().get(0).id()).isEqualTo(1);
+        assertThat(actualResponse.fields().get(0).name()).isEqualTo("IBAN");
+        assertThat(actualResponse.fields().get(0).value()).isEqualTo("112233");
+        assertThat(actualResponse.fields().get(1).id()).isEqualTo(2);
+        assertThat(actualResponse.fields().get(1).name()).isEqualTo("Beneficiary");
+        assertThat(actualResponse.fields().get(1).value()).isEqualTo("TODOR GOGOV");
+        assertThat(actualResponse.fields().get(2).id()).isEqualTo(3);
+        assertThat(actualResponse.fields().get(2).name()).isEqualTo("Alpha");
+        assertThat(actualResponse.fields().get(2).value()).isEqualTo("Beta");
+        assertThat(actualResponse.fields().get(3).id()).isEqualTo(6);
+        assertThat(actualResponse.fields().get(3).name()).isEqualTo("Test 1");
+        assertThat(actualResponse.fields().get(3).value()).isEqualTo("Value 1");
+        assertThat(actualResponse.fields().get(4).id()).isEqualTo(4);
+        assertThat(actualResponse.fields().get(4).name()).isEqualTo("Test 2");
+        assertThat(actualResponse.fields().get(4).value()).isEqualTo("Value 2");
+        //ToDo fix assertions. Remove id check. Pointless.
     }
 
 }
