@@ -24,20 +24,19 @@ import java.util.List;
 public class SectionServiceImpl implements SectionService {
     private static final Logger logger = LoggerFactory.getLogger(SectionServiceImpl.class);
 
-    private final SectionRepository sectionRepository;
+    private final SectionDataRecordRepository dataRecordRepository;
     private final TransactionActionRecordRepository transactionActionRepository;
     private final TransactionTemplate transactionTemplate;
     private final FileStorage fileStorage;
     private final LocalizationService localizationService;
 
     public SectionServiceImpl(
-            SectionRepository sectionRepository,
-            SectionRepository sectionDataRecordRepository,
+            SectionDataRecordRepository dataRecordRepository,
             TransactionActionRecordRepository transactionActionRecordRepository,
             TransactionTemplate transactionTemplate,
             FileStorage fileStorage,
             LocalizationService localizationService) {
-        this.sectionRepository = sectionDataRecordRepository;
+        this.dataRecordRepository = dataRecordRepository;
         this.transactionActionRepository = transactionActionRecordRepository;
         this.transactionTemplate = transactionTemplate;
         this.fileStorage = fileStorage;
@@ -53,7 +52,7 @@ public class SectionServiceImpl implements SectionService {
      */
     @Override
     public SectionData downloadSection(int dataRecordId, int sectionId) {
-        SectionDownloadData sectionDownloadData = sectionRepository.findByIdAndSectionId(dataRecordId, sectionId)
+        SectionDownloadData sectionDownloadData = dataRecordRepository.findByIdAndSectionId(dataRecordId, sectionId)
                 .orElseThrow(() -> {
                     logger.error("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
                     ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.download.datarecord.not.found", sectionId);
@@ -110,7 +109,7 @@ public class SectionServiceImpl implements SectionService {
      */
     @Override
     public void deleteSection(int dataRecordId, int sectionId) {
-        DataRecord dataRecord = sectionRepository
+        DataRecord dataRecord = dataRecordRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
                     logger.error("Data record with id '{}' not found for section removal", dataRecordId);
@@ -133,7 +132,7 @@ public class SectionServiceImpl implements SectionService {
         TransactionActionRecord actionRecord = addDeleteTransactionAction(removedSection.getStorageLocation());
         deleteSection(dataRecord, removedSection, actionRecord);
 
-        sectionRepository.saveAndFlush(dataRecord);
+        dataRecordRepository.saveAndFlush(dataRecord);
         logger.info("Removed section '{}' to data record '{}'", sectionId, dataRecordId);
     }
 
@@ -169,7 +168,7 @@ public class SectionServiceImpl implements SectionService {
                                  int dataRecordId,
                                  MultipartFile sectionFile,
                                  String systemFileName) {
-        DataRecord dataRecord = sectionRepository
+        DataRecord dataRecord = dataRecordRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
                     logger.error("Data record with id '{}' not found for section upload", dataRecordId);
