@@ -62,7 +62,8 @@ public class SectionServiceImpl implements SectionService {
 
         byte[] bytes = fileStorage.downloadFile(sectionDownloadData.storageLocation());
 
-        SectionData sectionData = new SectionData(bytes, sectionDownloadData.contentType());
+        String contentDisposition = String.format("attachment; filename=\"%s\"", sectionDownloadData.fileName());
+        SectionData sectionData = new SectionData(bytes, sectionDownloadData.contentType(), contentDisposition);
 
         logger.info("Downloaded section '{}'", sectionId);
         return sectionData;

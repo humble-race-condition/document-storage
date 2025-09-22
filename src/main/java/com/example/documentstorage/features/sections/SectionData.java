@@ -1,4 +1,4 @@
 package com.example.documentstorage.features.sections;
 
-public record SectionData(byte[] content, String contentType) {
+public record SectionData(byte[] content, String contentType, String contentDisposition) {
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface SectionRepository extends JpaRepository<DataRecord, Integer> {
     @Query("""
-                SELECT new com.example.documentstorage.features.sections.SectionDownloadData(s.id, s.storageLocation, s.contentType)
+                SELECT new com.example.documentstorage.features.sections.SectionDownloadData(s.id, s.fileName, s.storageLocation, s.contentType)
                 FROM DataRecord d
                 JOIN d.sections s WHERE d.id = :dataRecordId AND s.id = :sectionId
                 """)
