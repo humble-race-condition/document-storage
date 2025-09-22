@@ -19,6 +19,8 @@ public class Section {
 
     private String storageLocation;
 
+    private String contentType;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "data_record_id", nullable = false)
     private DataRecord dataRecord;
@@ -56,6 +58,14 @@ public class Section {
 
     public void setStorageLocation(String storageLocation) {
         this.storageLocation = storageLocation;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     public DataRecord getDataRecord() {

@@ -32,15 +32,41 @@ public class SectionServiceImpl implements SectionService {
 
     public SectionServiceImpl(
             SectionRepository sectionRepository,
+            SectionRepository sectionDataRecordRepository,
             TransactionActionRecordRepository transactionActionRecordRepository,
             TransactionTemplate transactionTemplate,
             FileStorage fileStorage,
             LocalizationService localizationService) {
-        this.sectionRepository = sectionRepository;
+        this.sectionRepository = sectionDataRecordRepository;
         this.transactionActionRepository = transactionActionRecordRepository;
         this.transactionTemplate = transactionTemplate;
         this.fileStorage = fileStorage;
         this.localizationService = localizationService;
+    }
+
+    /**
+     * Downloads the section file by the section id
+     *
+     * @param dataRecordId the id of the data record
+     * @param sectionId the id of the section
+     * @return file of the section
+     */
+    @Override
+    public SectionData downloadSection(int dataRecordId, int sectionId) {
+        SectionDownloadData sectionDownloadData = sectionRepository.findByIdAndSectionId(dataRecordId, sectionId)
+                .orElseThrow(() -> {
+                    logger.error("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
+                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.download.datarecord.not.found", sectionId);
+                    return new InvalidClientInputException(errorMessage);
+                });
+
+        byte[] bytes = fileStorage.downloadFile(sectionDownloadData.storageLocation());
+
+        String contentDisposition = String.format("attachment; filename=\"%s\"", sectionDownloadData.fileName());
+        SectionData sectionData = new SectionData(bytes, sectionDownloadData.contentType(), contentDisposition);
+
+        logger.info("Downloaded section '{}'", sectionId);
+        return sectionData;
     }
 
     /**
@@ -154,6 +180,7 @@ public class SectionServiceImpl implements SectionService {
         Section sectionRecord = new Section();
         sectionRecord.setFileName(sectionFile.getOriginalFilename());
         sectionRecord.setStorageLocation(systemFileName);
+        sectionRecord.setContentType(sectionFile.getContentType());
         dataRecord.addSection(sectionRecord);
 
         fileStorage.storeSection(sectionFile, systemFileName);
