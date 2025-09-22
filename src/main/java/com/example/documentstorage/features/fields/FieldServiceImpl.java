@@ -52,11 +52,11 @@ public class FieldServiceImpl implements FieldService {
             }
         }
 
+        dataRecord = fieldRepository.saveAndFlush(dataRecord);
+
         List<FieldDetail> fieldDetails = dataRecord.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
                 .toList();
-
-        dataRecord = fieldRepository.saveAndFlush(dataRecord);
         logger.info("Updated fields for data record with id '{}'", id);
         return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
