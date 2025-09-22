@@ -4,6 +4,7 @@ services:
     container_name: document-storage-${ENVIRONMENT}
     environment:
       - DB_PORT=${DB_PORT}
+      - ENVIRONMENT=${ENVIRONMENT}
     volumes:
       - document-storage-files:/app/files
     ports:
