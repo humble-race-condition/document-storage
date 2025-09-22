@@ -13,12 +13,14 @@ implemented problem details, generalized error handling, unit and integration te
 Jenkinsfile, docker-compose with .env and many others.
 
 ### Run the application
-To run the application, copy the following files from the repository:  
+To run the application, copy the following files from the repository in a selected folder:  
 `./infrastructure/.env`  
 `./infrastructure/docker-compose.yml`  
 `./infrastructure/db/init.sql`  
 
-files in a selected folder on a Linux machine. In that selected folder run:  
+In that selected folder run:  
+`chmod 755 db/init.sql` - enables "other" users to execute the script. Allows docker to initialize MySql  
+Start the application:  
 `docker compose up -d`
 
 Postman collections can be found in `./documentation` folder.
