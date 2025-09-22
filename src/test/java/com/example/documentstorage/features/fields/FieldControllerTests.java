@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,7 +31,7 @@ class FieldControllerTests {
     private ObjectMapper objectMapper;
 
     @Test
-    void addFields_whenAddingTwoNewValidFields_shouldAddFields() throws Exception {
+    void addFields_whenAddingTwoNewValidFields_shouldAddTwoNewFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -46,9 +47,22 @@ class FieldControllerTests {
         String json = result.getResponse().getContentAsString();
         DataRecordDetail actualResponse = objectMapper.readValue(json, DataRecordDetail.class);
 
-//        assertEquals("Alice", actualResponse.getCustomer());
-//        assertEquals(2, actualResponse.getItems().size());
-//        assertEquals("Laptop", actualResponse.getItems().get(0).getName());
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.id()).isEqualTo(1);
+        assertThat(actualResponse.title()).isEqualTo("Payment note");
+        assertThat(actualResponse.description()).isEqualTo("A payment note");
+        assertThat(actualResponse.sections())
+                .isNotNull()
+                .hasSize(0);
+        assertThat(actualResponse.fields())
+                .isNotNull()
+                .hasSize(0);
+        assertThat(actualResponse.fields().get(0).id())
+                .isEqualTo();
+        assertThat(actualResponse.fields().get(1));
+        assertThat(actualResponse.fields().get(2));
+        assertThat(actualResponse.fields().get(3));
+        assertThat(actualResponse.fields().get(4));
     }
 
 }
