@@ -25,6 +25,6 @@ Start the application:
 
 Postman collections can be found in `./documentation` folder in the repository.
 
-Swagger is also provided where port is `port` is set from the `.env` file. 
+Swagger is also provided, where `port` is set from the `.env` file. 
 The default port for the `main` branch is `40800`.  
 http://host:40800/swagger-ui/index.html
