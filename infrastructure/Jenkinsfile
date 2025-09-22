@@ -30,6 +30,7 @@ pipeline {
                 }
 
                 echo "App name is ${env.APP_NAME}"
+
                 script {
                     def artifactVersion = sh(
                         script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
@@ -41,6 +42,28 @@ pipeline {
                 }
 
                 echo "App tag is ${env.APP_FINAL_TAG}"
+
+                script {
+                    def environment
+                    switch(env.BRANCH_NAME) {
+                      case "develop":
+                        environment = "dev"
+                        break
+                      case "staging":
+                        environment = "staging"
+                        break
+                      case "main":
+                        environment = "production"
+                        break
+                      default:
+                        result = "none"
+                        break
+                    }
+
+                    env.APP_ENVIRONMENT = environment
+                }
+
+                echo "App environment is ${env.APP_ENVIRONMENT}"
             }
         }
 
@@ -76,21 +99,21 @@ pipeline {
                 sh "cp target/*.jar docker-build"
                 sh "cp infrastructure/Dockerfile docker-build"
                 dir("docker-build") {
-                    sh "docker build -t ${env.APP_NAME}:${env.BRANCH_NAME} -t ${env.APP_NAME}:${env.APP_FINAL_TAG} ."
+                    sh "docker build -t ${env.APP_NAME}:${env.APP_ENVIRONMENT} -t ${env.APP_NAME}:${env.APP_FINAL_TAG} ."
                 }
             }
         }
 
         stage("Docker push") {
             steps {
-                sh "docker push ${env.APP_NAME}:${env.BRANCH_NAME}"
+                sh "docker push ${env.APP_NAME}:${env.APP_ENVIRONMENT}"
                 sh "docker push ${env.APP_NAME}:${env.APP_FINAL_TAG}"
             }
         }
 
         stage("Docker clean up") {
             steps {
-                sh "docker rmi ${env.APP_NAME}:${env.BRANCH_NAME} ${env.APP_NAME}:${env.APP_FINAL_TAG}"
+                sh "docker rmi ${env.APP_NAME}:${env.APP_ENVIRONMENT} ${env.APP_NAME}:${env.APP_FINAL_TAG}"
             }
         }
     }
