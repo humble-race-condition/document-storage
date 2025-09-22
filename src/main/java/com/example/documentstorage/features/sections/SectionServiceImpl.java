@@ -53,25 +53,16 @@ public class SectionServiceImpl implements SectionService {
      */
     @Override
     public SectionData downloadSection(int dataRecordId, int sectionId) {
-        DataRecord dataRecord = sectionRepository.findByIdAndSectionId(dataRecordId, sectionId)
+        SectionDownloadData sectionDownloadData = sectionRepository.findByIdAndSectionId(dataRecordId, sectionId)
                 .orElseThrow(() -> {
                     logger.error("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
                     ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.download.datarecord.not.found", sectionId);
                     return new InvalidClientInputException(errorMessage);
                 });
 
-        Section section = dataRecord.getSections().stream()
-                .filter(s -> s.getId() ==  sectionId)
-                .findFirst()
-                .orElseThrow(() -> {
-                    logger.error("Section with id '{}' not found for download", sectionId);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.download.section.not.found", sectionId);
-                    return new InvalidClientInputException(errorMessage);
-                });
+        byte[] bytes = fileStorage.downloadFile(sectionDownloadData.storageLocation());
 
-        byte[] bytes = fileStorage.downloadFile(section.getStorageLocation());
-
-        SectionData sectionData = new SectionData(bytes, section.getContentType());
+        SectionData sectionData = new SectionData(bytes, sectionDownloadData.contentType());
 
         logger.info("Downloaded section '{}'", sectionId);
         return sectionData;

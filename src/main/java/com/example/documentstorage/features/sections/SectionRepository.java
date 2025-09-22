@@ -9,6 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface SectionRepository extends JpaRepository<DataRecord, Integer> {
-    @Query("SELECT d FROM DataRecord d JOIN FETCH d.sections s WHERE d.id = :dataRecordId AND s.id = :sectionId")
-    Optional<DataRecord> findByIdAndSectionId(int dataRecordId, int sectionId);
+    @Query("""
+                SELECT new com.example.documentstorage.features.sections.SectionDownloadData(s.id, s.storageLocation, s.contentType)
+                FROM DataRecord d
+                JOIN d.sections s WHERE d.id = :dataRecordId AND s.id = :sectionId
+                """)
+    Optional<SectionDownloadData> findByIdAndSectionId(int dataRecordId, int sectionId);
 }
