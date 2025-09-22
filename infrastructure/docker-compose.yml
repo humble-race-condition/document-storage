@@ -2,12 +2,14 @@ services:
   document-storage:
     image: vasilegov/document-storage:${ENVIRONMENT}
     container_name: document-storage-${ENVIRONMENT}
+    ports:
+      - ${DOCUMENT_STORAGE_PORT}:8080
     environment:
       - ENVIRONMENT=${ENVIRONMENT}
     volumes:
       - document-storage-files:/app/files
-    ports:
-      - ${DOCUMENT_STORAGE_PORT}:8080
+    networks:
+      - app_network
     depends_on:
       database:
         condition: service_healthy
@@ -22,6 +24,8 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app_network
     healthcheck:
           test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
           interval: 5s
@@ -33,3 +37,8 @@ volumes:
     name: document-storage-files-${ENVIRONMENT}
   mysql-data:
     name: mysql-data-${ENVIRONMENT}
+
+networks:
+  app_network:
+    name: default_app_network
+    driver: bridge
