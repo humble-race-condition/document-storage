@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   document-storage:
     image: vasilegov/document-storage:${ENVIRONMENT}
