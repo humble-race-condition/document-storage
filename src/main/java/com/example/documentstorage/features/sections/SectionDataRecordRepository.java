@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SectionRepository extends JpaRepository<DataRecord, Integer> {
+public interface SectionDataRecordRepository extends JpaRepository<DataRecord, Integer> {
     @Query("""
                 SELECT new com.example.documentstorage.features.sections.SectionDownloadData(s.id, s.fileName, s.storageLocation, s.contentType)
                 FROM DataRecord d
