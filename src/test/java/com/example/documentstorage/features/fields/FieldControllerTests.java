@@ -52,9 +52,10 @@ class FieldControllerTests {
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.errors()).hasSize(1);
         assertThat(actualResponse.errors())
-                .filteredOn(f -> f.code().equals("1000"))
-                .first()
-                .satisfies(f -> assertThat(f.message()).isEqualTo("The field name must not be blank"));
+                .anySatisfy(e -> {
+                    assertThat(e.code()).isEqualTo("1000");
+                    assertThat(e.message()).isEqualTo("The field name must not be blank");
+                });
     }
 
     @Test
@@ -76,9 +77,10 @@ class FieldControllerTests {
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.errors()).hasSize(1);
         assertThat(actualResponse.errors())
-                .filteredOn(f -> f.code().equals("1000"))
-                .first()
-                .satisfies(f -> assertThat(f.message()).isEqualTo("The field value must not be blank"));
+                .anySatisfy(e -> {
+                    assertThat(e.code()).isEqualTo("1000");
+                    assertThat(e.message()).isEqualTo("The field value must not be blank");
+                });
     }
 
     @Test
@@ -105,7 +107,7 @@ class FieldControllerTests {
 
         assertThat(actualResponse.errors())
                 .anySatisfy(s -> assertThat(s.message()).isEqualTo("The field value must not be blank"))
-                .anySatisfy(s -> assertThat(s.message()).isEqualTo("The field name must not be blank`"));
+                .anySatisfy(s -> assertThat(s.message()).isEqualTo("The field name must not be blank"));
     }
 
     @Test
@@ -163,14 +165,16 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Test 1"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 1"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 1");
+                    assertThat(field.value()).isEqualTo("Value 1");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Test 2"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 2"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 2");
+                    assertThat(field.value()).isEqualTo("Value 2");
+                });
     }
 
     @Test
@@ -202,14 +206,16 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Test 1"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 1"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 1");
+                    assertThat(field.value()).isEqualTo("Value 1");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Test 2"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 2"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 2");
+                    assertThat(field.value()).isEqualTo("Value 2");
+                });
     }
 
     @Test
@@ -241,29 +247,34 @@ class FieldControllerTests {
                 .hasSize(5);
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("IBAN"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("112233"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("112233");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Beneficiary"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("TODOR GOGOV"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Alpha"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Beta"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Test 1"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 1"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 1");
+                    assertThat(field.value()).isEqualTo("Value 1");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Test 2"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 2"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 2");
+                    assertThat(field.value()).isEqualTo("Value 2");
+                });
     }
 
     @Test
@@ -292,19 +303,22 @@ class FieldControllerTests {
                 .hasSize(3);
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("IBAN"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("OVERRIDDEN"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Beneficiary"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("TODOR GOGOV"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Alpha"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Beta"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
+                });
     }
 
     @Test
@@ -336,23 +350,27 @@ class FieldControllerTests {
                 .hasSize(4);
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("IBAN"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("OVERRIDDEN"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Beneficiary"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("TODOR GOGOV"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Alpha"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Beta"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
+                });
 
         assertThat(actualResponse.fields())
-                .filteredOn(f -> f.name().equals("Test 1"))
-                .first()
-                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 1"));
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 1");
+                    assertThat(field.value()).isEqualTo("Value 1");
+                });
     }
 }
