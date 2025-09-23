@@ -57,22 +57,30 @@ class FieldControllerTests {
         assertThat(actualResponse.fields())
                 .isNotNull()
                 .hasSize(5);
-        assertThat(actualResponse.fields().get(0).id()).isEqualTo(1);
-        assertThat(actualResponse.fields().get(0).name()).isEqualTo("IBAN");
-        assertThat(actualResponse.fields().get(0).value()).isEqualTo("112233");
-        assertThat(actualResponse.fields().get(1).id()).isEqualTo(2);
-        assertThat(actualResponse.fields().get(1).name()).isEqualTo("Beneficiary");
-        assertThat(actualResponse.fields().get(1).value()).isEqualTo("TODOR GOGOV");
-        assertThat(actualResponse.fields().get(2).id()).isEqualTo(3);
-        assertThat(actualResponse.fields().get(2).name()).isEqualTo("Alpha");
-        assertThat(actualResponse.fields().get(2).value()).isEqualTo("Beta");
-        assertThat(actualResponse.fields().get(3).id()).isEqualTo(6);
-        assertThat(actualResponse.fields().get(3).name()).isEqualTo("Test 1");
-        assertThat(actualResponse.fields().get(3).value()).isEqualTo("Value 1");
-        assertThat(actualResponse.fields().get(4).id()).isEqualTo(4);
-        assertThat(actualResponse.fields().get(4).name()).isEqualTo("Test 2");
-        assertThat(actualResponse.fields().get(4).value()).isEqualTo("Value 2");
-        //ToDo fix assertions. Remove id check. Pointless.
-    }
 
+        assertThat(actualResponse.fields())
+                .filteredOn(f -> f.name().equals("IBAN"))
+                .first()
+                .satisfies(f -> assertThat(f.value()).isEqualTo("112233"));
+
+        assertThat(actualResponse.fields())
+                .filteredOn(f -> f.name().equals("Beneficiary"))
+                .first()
+                .satisfies(f -> assertThat(f.value()).isEqualTo("TODOR GOGOV"));
+
+        assertThat(actualResponse.fields())
+                .filteredOn(f -> f.name().equals("Alpha"))
+                .first()
+                .satisfies(f -> assertThat(f.value()).isEqualTo("Beta"));
+
+        assertThat(actualResponse.fields())
+                .filteredOn(f -> f.name().equals("Test 1"))
+                .first()
+                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 1"));
+
+        assertThat(actualResponse.fields())
+                .filteredOn(f -> f.name().equals("Test 2"))
+                .first()
+                .satisfies(f -> assertThat(f.value()).isEqualTo("Value 2"));
+    }
 }
