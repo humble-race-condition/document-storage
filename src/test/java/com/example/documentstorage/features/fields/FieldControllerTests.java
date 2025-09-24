@@ -378,7 +378,6 @@ class FieldControllerTests {
                 });
     }
 
-    //ToDo manual database inserts for each test. No data.sql.
     //ToDo no transactional on tests - bugs can happen due to it.
     @Test
     void addFields_whenAddingOneNewField_shouldStoreFieldInDatabase() throws Exception {
