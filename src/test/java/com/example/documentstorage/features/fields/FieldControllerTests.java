@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,6 +33,9 @@ class FieldControllerTests {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void addFields_whenSubmittingEmptyFieldName_shouldReturnError() throws Exception {
@@ -372,5 +376,24 @@ class FieldControllerTests {
                     assertThat(field.name()).isEqualTo("Test 1");
                     assertThat(field.value()).isEqualTo("Value 1");
                 });
+    }
+
+    //ToDo manual database inserts for each test. No data.sql.
+    //ToDo no transactional on tests - bugs can happen due to it.
+    @Test
+    void addFields_whenAddingOneNewField_shouldStoreFieldInDatabase() throws Exception {
+        List<FieldInfo> infos = List.of(
+                new FieldInfo("Test count", "1234")
+        );
+        UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
+
+        mockMvc.perform(put("/api/data-records/{id}/fields", 3)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM fields WHERE data_record_id = 3", Integer.class);
+        assertThat(count).isEqualTo(1);
     }
 }
