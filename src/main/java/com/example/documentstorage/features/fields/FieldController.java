@@ -24,7 +24,7 @@ public class FieldController {
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
     @PutMapping
-    public ResponseEntity<DataRecordDetail> addFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
+    public ResponseEntity<DataRecordDetail> updateFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
         DataRecordDetail dataRecord = fieldService.updateDataRecordFields(id, request);
         return ResponseEntity.ok().body(dataRecord);
     }
@@ -37,8 +37,8 @@ public class FieldController {
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
     @DeleteMapping
-    public ResponseEntity<Void> removeFields(@PathVariable int id, @Valid @RequestBody RemoveFieldsRequest request) {
-        fieldService.removeDataRecordFields(id, request);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<DataRecordDetail> removeFields(@PathVariable int id, @Valid @RequestBody RemoveFieldsRequest request) {
+        DataRecordDetail dataRecord = fieldService.removeDataRecordFields(id, request);
+        return ResponseEntity.ok().body(dataRecord);
     }
 }
