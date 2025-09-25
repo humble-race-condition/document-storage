@@ -24,7 +24,7 @@ public class FieldController {
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
     @PutMapping
-    public ResponseEntity<DataRecordDetail> addFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
+    public ResponseEntity<DataRecordDetail> updateFields(@PathVariable int id, @Valid @RequestBody UpdateFieldsRequest request) {
         DataRecordDetail dataRecord = fieldService.updateDataRecordFields(id, request);
         return ResponseEntity.ok().body(dataRecord);
     }

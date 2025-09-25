@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ActiveProfiles("test")
+@Sql("/fields-test.sql")
 class FieldControllerTests {
 
     @Autowired
@@ -38,7 +40,7 @@ class FieldControllerTests {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    void addFields_whenSubmittingEmptyFieldName_shouldReturnError() throws Exception {
+    void updateFields_whenSubmittingEmptyFieldName_shouldReturnError() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo(null, "value")
         );
@@ -63,7 +65,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenSubmittingEmptyFieldValue_shouldReturnError() throws Exception {
+    void updateFields_whenSubmittingEmptyFieldValue_shouldReturnError() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("name", null)
         );
@@ -88,7 +90,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenSubmittingEmptyFieldNameAndValue_shouldReturnTwoErrors() throws Exception {
+    void updateFields_whenSubmittingEmptyFieldNameAndValue_shouldReturnTwoErrors() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo(null, null)
         );
@@ -115,7 +117,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingNoNewValidFieldsWithNoExistingFields_shouldAddNoNewFields() throws Exception {
+    void addFields_whenAddingNoNewValidFieldsWithNoExistingFields_shouldUpdateNoNewFields() throws Exception {
         List<FieldInfo> infos = List.of();
         UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
 
@@ -141,7 +143,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingTwoNewFieldWithNoExistingFields_shouldAddTwoFields() throws Exception {
+    void addFields_whenAddingTwoNewFieldWithNoExistingFields_shouldUpdateTwoFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -182,7 +184,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingTwoNewValidFieldsWithNoExistingFields_shouldAddTwoNewFields() throws Exception {
+    void addFields_whenAddingTwoNewValidFieldsWithNoExistingFields_shouldUpdateTwoNewFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -223,7 +225,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingTwoNewValidFieldsWithExistingFields_shouldAddTwoNewFields() throws Exception {
+    void addFields_whenAddingTwoNewValidFieldsWithExistingFields_shouldUpdateTwoNewFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -282,7 +284,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingOneOverridingFieldWithExistingFields_shouldOverrideExistingField() throws Exception {
+    void updateFields_whenAddingOneOverridingFieldWithExistingFields_shouldOverrideExistingField() throws Exception {
         List<FieldInfo> infos = List.of(new FieldInfo("IBAN", "OVERRIDDEN"));
         UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
 
@@ -326,7 +328,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndAddOneNewField() throws Exception {
+    void addFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndUpdateOneNewField() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("IBAN", "OVERRIDDEN"),
                 new FieldInfo("Test 1", "Value 1")
@@ -380,7 +382,7 @@ class FieldControllerTests {
 
     //ToDo no transactional on tests - bugs can happen due to it.
     @Test
-    void addFields_whenAddingOneNewField_shouldStoreFieldInDatabase() throws Exception {
+    void updateFields_whenAddingOneNewField_shouldStoreFieldInDatabase() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test count", "1234")
         );
@@ -394,5 +396,46 @@ class FieldControllerTests {
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM fields WHERE data_record_id = 3", Integer.class);
         assertThat(count).isEqualTo(1);
+    }
+
+    @Test
+    void addFields_whenAddingTwoNewFieldWithNoExistingFields_shouldUpdateTwoFields() throws Exception {
+        List<FieldInfo> infos = List.of(
+                new FieldInfo("Test 1", "Value 1"),
+                new FieldInfo("Test 2", "Value 2")
+        );
+        UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
+
+        MvcResult result = mockMvc.perform(put("/api/data-records/{id}/fields", 3)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = result.getResponse().getContentAsString();
+        DataRecordDetail actualResponse = objectMapper.readValue(json, DataRecordDetail.class);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.id()).isEqualTo(3);
+        assertThat(actualResponse.title()).isEqualTo("Storage bill");
+        assertThat(actualResponse.description()).isEqualTo("A bill for storage");
+        assertThat(actualResponse.sections())
+                .isNotNull()
+                .hasSize(0);
+        assertThat(actualResponse.fields())
+                .isNotNull()
+                .hasSize(2);
+
+        assertThat(actualResponse.fields())
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 1");
+                    assertThat(field.value()).isEqualTo("Value 1");
+                });
+
+        assertThat(actualResponse.fields())
+                .anySatisfy(field -> {
+                    assertThat(field.name()).isEqualTo("Test 2");
+                    assertThat(field.value()).isEqualTo("Value 2");
+                });
     }
 }
