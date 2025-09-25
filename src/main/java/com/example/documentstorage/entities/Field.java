@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+//ToDo mapped supperclass
 @Entity
 @Table(name = "fields")
 @EntityListeners(AuditingEntityListener.class)

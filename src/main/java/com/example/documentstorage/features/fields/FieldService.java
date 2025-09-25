@@ -7,5 +7,5 @@ import com.example.documentstorage.shared.base.models.responses.DataRecordDetail
 public interface FieldService {
     DataRecordDetail updateDataRecordFields(int id, UpdateFieldsRequest request);
 
-    void removeDataRecordFields(int id, RemoveFieldsRequest request);
+    DataRecordDetail removeDataRecordFields(int id, RemoveFieldsRequest request);
 }
