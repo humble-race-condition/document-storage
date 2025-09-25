@@ -62,7 +62,7 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
-    public void removeDataRecordFields(int id, RemoveFieldsRequest request) {
+    public DataRecordDetail removeDataRecordFields(int id, RemoveFieldsRequest request) {
         validateRequest(request);
 
         DataRecord dataRecord = dataRecordRepository.findById(id)
@@ -83,8 +83,11 @@ public class FieldServiceImpl implements FieldService {
 
         dataRecordRepository.saveAndFlush(dataRecord);
 
-        //ToDo do not return DataRecordDetail, Return only field details. This prevents a database fetch. Do this in section service as well
+        List<FieldDetail> fieldDetails = dataRecord.getFields().stream()
+                .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
+                .toList();
         logger.info("Removed fields for data record with id '{}'", id);
+        return DataRecordDetail.withFields(dataRecord.getId(), dataRecord.getTitle(), dataRecord.getDescription(), fieldDetails);
     }
 
     private void addFieldToDataRecord(DataRecord dataRecord, FieldInfo requestField) {
