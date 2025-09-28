@@ -2,6 +2,8 @@ package com.example.documentstorage.shared.base.apimessages;
 
 import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import io.micrometer.common.lang.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,9 @@ import java.util.Locale;
 
 @Service
 public class LocalizationServiceImpl implements LocalizationService {
+    private static final Logger logger = LoggerFactory.getLogger(LocalizationServiceImpl.class);
+    private static final String DEFAULT_MESSAGE = "";
+
     private final MessageSource messageSource;
 
     public LocalizationServiceImpl(MessageSource messageSource) {
@@ -24,7 +29,12 @@ public class LocalizationServiceImpl implements LocalizationService {
      */
     @Override
     public String getMessage(String code, @Nullable Object[]... args) {
-        String message = messageSource.getMessage(code, args, Locale.ROOT);
+        String message = messageSource.getMessage(code, args, null, Locale.ROOT);
+        if (message == null) {
+            logger.warn("No message found for code '{}'", code);
+            return DEFAULT_MESSAGE;
+        }
+
         return message;
     }
 
