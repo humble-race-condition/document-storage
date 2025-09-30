@@ -11,7 +11,7 @@ public interface LocalizationService {
      * @param args arguments for formatting the string
      * @return the string from the message
      */
-    String getMessage(String code, @Nullable Object[]... args);
+    String getMessage(String code, @Nullable Object... args);
 
     /**
      * Gets the error message title, details and code in a single object

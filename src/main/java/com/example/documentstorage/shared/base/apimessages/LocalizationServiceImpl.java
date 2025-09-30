@@ -28,7 +28,7 @@ public class LocalizationServiceImpl implements LocalizationService {
      * @return the string from the message
      */
     @Override
-    public String getMessage(String code, @Nullable Object[]... args) {
+    public String getMessage(String code, @Nullable Object... args) {
         String message = messageSource.getMessage(code, args, null, Locale.ROOT);
         if (message == null) {
             logger.warn("No message found for code '{}'", code);
