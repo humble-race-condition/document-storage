@@ -49,7 +49,7 @@ public class SectionServiceImpl implements SectionService {
     public SectionData downloadSection(int dataRecordId, int sectionId) {
         SectionDownloadData sectionDownloadData = dataRecordRepository.findByIdAndSectionId(dataRecordId, sectionId)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
+                    logger.warn("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
                     return new InvalidClientInputException("features.sections.on.section.download.datarecord.not.found", sectionId);
                 });
 
@@ -106,7 +106,7 @@ public class SectionServiceImpl implements SectionService {
         DataRecord dataRecord = dataRecordRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for section removal", dataRecordId);
+                    logger.warn("Data record with id '{}' not found for section removal", dataRecordId);
                     return new InvalidClientInputException("features.sections.on.section.removal.datarecord.not.found", dataRecordId);
                 });
 
@@ -116,7 +116,7 @@ public class SectionServiceImpl implements SectionService {
                 .toList();
 
         if (sections.size() != 1) {
-            logger.error("Data record with id '{}' either has zero or more than one sections with the section id '{}'", dataRecordId, sectionId);
+            logger.warn("Data record with id '{}' either has zero or more than one sections with the section id '{}'", dataRecordId, sectionId);
             throw new InvalidClientInputException("features.sections.on.section.removal.multiple.sections", sectionId);
         }
 
@@ -163,7 +163,7 @@ public class SectionServiceImpl implements SectionService {
         DataRecord dataRecord = dataRecordRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for section upload", dataRecordId);
+                    logger.warn("Data record with id '{}' not found for section upload", dataRecordId);
                     return new InvalidClientInputException("features.sections.on.section.upload.datarecord.not.found", dataRecordId);
                 });
 

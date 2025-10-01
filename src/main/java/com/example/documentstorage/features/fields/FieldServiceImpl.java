@@ -32,7 +32,7 @@ public class FieldServiceImpl implements FieldService {
 
         DataRecord dataRecord = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for data record field update", id);
+                    logger.warn("Data record with id '{}' not found for data record field update", id);
                     return new InvalidClientInputException("features.fields.on.update.datarecord.datarecord.not.found", id);
                 });
 
@@ -62,7 +62,7 @@ public class FieldServiceImpl implements FieldService {
 
         DataRecord dataRecord = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for data record field remove", id);
+                    logger.warn("Data record with id '{}' not found for data record field remove", id);
                     return new InvalidClientInputException("features.fields.on.remove.datarecord.datarecord.not.found", id);
                 });
 

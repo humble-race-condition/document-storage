@@ -44,7 +44,7 @@ public class DataRecordServiceImpl implements DataRecordService {
     public DataRecordDetail getDataRecordById(int id) {
         DataRecord record = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for data record get by id", id);
+                    logger.warn("Data record with id '{}' not found for data record get by id", id);
                     return new InvalidClientInputException("features.datarecords.on.datarecord.get.by.id.datarecord.not.found", id);
                 });
 
@@ -126,7 +126,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         DataRecord dataRecord = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for data record update", id);
+                    logger.warn("Data record with id '{}' not found for data record update", id);
                     return new InvalidClientInputException("features.datarecords.on.datarecord.update.datarecord.not.found", id);
                 });
 
