@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 
     //ToDo general exception handler
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         String path = Optional.ofNullable(request.getRequestURI()).orElse("");
         ErrorResponse errorResponse = new ErrorResponse(new ArrayList<>(), path, LocalDateTime.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
             default -> 500;
         };
 
-        ErrorMessage errorMessage = localizationService.getErrorMessage(ex.getMessage(), ex.getMessageArgs());
+        ErrorMessage errorMessage = localizationService.getErrorMessage(ex.getMessageKey(), ex.getMessageArgs());
         ProblemDetail problemDetail = ProblemDetail.forStatus(status);
         problemDetailMapper.fillProblemDetails(problemDetail, errorMessage);
 
