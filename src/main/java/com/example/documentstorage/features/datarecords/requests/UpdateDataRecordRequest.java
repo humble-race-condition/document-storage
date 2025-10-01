@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Length;
 
 public record UpdateDataRecordRequest(
-        @NotEmpty
-        @Length(min = 3, max = 100)
+        @NotEmpty(message = "{features.datarecords.requests.update.datarecord.title.empty}")
+        @Length(message = "{features.datarecords.requests.update.datarecord.title.invalid.length}", min = 3, max = 100)
         String title,
-        @NotEmpty
-        @Length(min = 3, max = 100)
+        @NotEmpty(message = "{features.datarecords.requests.update.datarecord.description.empty}")
+        @Length(message = "{features.datarecords.requests.update.datarecord.description.invalid.length}", min = 3, max = 100)
         String description) {
 }
