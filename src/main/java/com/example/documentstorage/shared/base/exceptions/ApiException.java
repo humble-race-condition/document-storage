@@ -8,7 +8,7 @@ public abstract class ApiException extends RuntimeException {
     private final Object[] messageArgs;
 
     protected ApiException(String messageKey, Exception innerException, Object... messageArgs) {
-        super(innerException);
+        super("Key for message '%s'".formatted(messageKey), innerException);
         this.messageKey = messageKey;
         this.messageArgs = messageArgs;
     }

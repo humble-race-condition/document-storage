@@ -4,6 +4,7 @@ import com.example.documentstorage.shared.base.apimessages.LocalizationService;
 import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 @Service
 public class ProblemDetailMapperImpl implements ProblemDetailMapper {
-    private static final int STATUS_CODE = 400;
+    private static final HttpStatus STATUS_CODE = HttpStatus.BAD_REQUEST;
     private static final Logger logger = LoggerFactory.getLogger(ProblemDetailMapperImpl.class);
     private final LocalizationService localizationService;
 
@@ -41,8 +42,7 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
 
         ErrorMessage errorMessage = localizationService.getErrorMessage("validation.error.message");
 
-        ProblemDetail problemDetail = ProblemDetail.forStatus(STATUS_CODE);
-        fillProblemDetails(problemDetail, errorMessage, errors);
+        ProblemDetail problemDetail = generateProblemDetails(STATUS_CODE, errorMessage, errors);
 
         ResponseEntity<ProblemDetail> response = ResponseEntity
                 .status(problemDetail.getStatus())
@@ -51,21 +51,24 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
     }
 
     @Override
-    public void fillProblemDetails(ProblemDetail problemDetail, ErrorMessage errorMessage, String... errors)  {
-        fillBaseFields(problemDetail, errorMessage);
-        problemDetail.setProperty("errors", errors);
+    public ProblemDetail generateProblemDetails(HttpStatus status, ErrorMessage errorMessage, List<String> errors) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        fillBaseFields(problemDetail, errorMessage, errors);
+        return problemDetail;
     }
 
     @Override
-    public void fillProblemDetails(ProblemDetail problemDetail, ErrorMessage errorMessage, List<String> errors)  {
-        fillBaseFields(problemDetail, errorMessage);
-        problemDetail.setProperty("errors", errors);
+    public ProblemDetail generateProblemDetails(HttpStatus status, ErrorMessage errorMessage) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        fillBaseFields(problemDetail, errorMessage, List.of());
+        return problemDetail;
     }
 
-    private static void fillBaseFields(ProblemDetail problemDetail, ErrorMessage errorMessage) {
+    private static void fillBaseFields(ProblemDetail problemDetail, ErrorMessage errorMessage, List<String> errors) {
         problemDetail.setTitle(errorMessage.title());
         problemDetail.setDetail(errorMessage.detail());
         problemDetail.setProperty("code", errorMessage.code());
+        problemDetail.setProperty("errors", errors);
         problemDetail.setProperty("timestamp", LocalDateTime.now());
     }
 }

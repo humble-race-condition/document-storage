@@ -99,7 +99,7 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
 
         for (String sort : validatedSorts) {
             if (sort == null) {
-                logger.error("The sort order is null");
+                logger.warn("The sort order is null");
                 throw new InvalidClientInputException("features.datarecords.on.datarecord.get.all.sort.is.null");
             }
 
@@ -129,13 +129,13 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
 
         for (String filter : validatedFilters) {
             if (filter == null) {
-                logger.error("The filter is null");
+                logger.warn("The filter is null");
                 throw new InvalidClientInputException("features.datarecords.on.datarecord.get.all.filter.is.null");
             }
 
             String[] splitFilter = filter.split(SEPARATOR);
             if (splitFilter.length != 3) {
-                logger.error("The filter '{}' does not have a valid format", filter);
+                logger.warn("The filter '{}' does not have a valid format", filter);
                 throw new InvalidClientInputException("features.datarecords.on.datarecord.get.all.filter.not.valid", filter);
             }
         }
@@ -144,7 +144,7 @@ public class RegisterCriteriaParserImpl implements RegisterCriteriaParser {
     }
 
     private void throwSortException(String sort) {
-        logger.error("The sort '{}' does not have a valid format", sort);
+        logger.warn("The sort '{}' does not have a valid format", sort);
         throw new InvalidClientInputException("features.datarecords.on.datarecord.get.all.sort.not.valid", sort);
     }
 }

@@ -31,27 +31,36 @@ public class GlobalExceptionHandler {
         this.localizationService = localizationService;
     }
 
-    //ToDo general exception handler
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
-        String path = Optional.ofNullable(request.getRequestURI()).orElse("");
-        ErrorResponse errorResponse = new ErrorResponse(new ArrayList<>(), path, LocalDateTime.now());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleException(Exception ex, HttpServletRequest request) {
+        logger.error("An unexpected error occurred", ex);
+        ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
+
+        ProblemDetail problemDetail = problemDetailMapper.generateProblemDetails(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+
+        return problemDetail;
     }
 
     @ExceptionHandler(ApiException.class)
     public ProblemDetail handleApiExceptions(ApiException ex) {
-        logger.error(ex.getMessage(), ex);
+        ErrorMessage errorMessage = localizationService.getErrorMessage(ex.getMessageKey(), ex.getMessageArgs());
 
-        int status = switch (ex) {
-            case InvalidClientInputException clientInputException -> 400;
-            case InvalidSystemStateException invalidSystemStateException -> 500;
-            default -> 500;
+        HttpStatus status = switch (ex) {
+            case InvalidClientInputException clientInputException -> {
+                logger.warn(errorMessage.detail(), clientInputException);
+                yield HttpStatus.BAD_REQUEST;
+            }
+            case InvalidSystemStateException invalidSystemStateException -> {
+                logger.error(errorMessage.detail(), invalidSystemStateException);
+                yield HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+            default -> {
+                logger.error(ex.getMessage(), ex);
+                yield HttpStatus.INTERNAL_SERVER_ERROR;
+            }
         };
 
-        ErrorMessage errorMessage = localizationService.getErrorMessage(ex.getMessageKey(), ex.getMessageArgs());
-        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
-        problemDetailMapper.fillProblemDetails(problemDetail, errorMessage);
+        ProblemDetail problemDetail = problemDetailMapper.generateProblemDetails(status, errorMessage);
 
         return problemDetail;
     }
