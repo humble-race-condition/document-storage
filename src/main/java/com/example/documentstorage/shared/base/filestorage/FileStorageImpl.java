@@ -1,7 +1,6 @@
 package com.example.documentstorage.shared.base.filestorage;
 
 import com.example.documentstorage.shared.base.apimessages.LocalizationService;
-import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import com.example.documentstorage.shared.base.exceptions.InvalidSystemStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,7 @@ public class FileStorageImpl implements FileStorage {
      */
     @Override
     public byte[] downloadFile(String systemFileName) {
-        Objects.requireNonNull(systemFileName, () -> localizationService.getMessage("shared.base.filestorage.on.download.file.system.file.name.null"));
+        Objects.requireNonNull(systemFileName, localizationService.getMessage("shared.base.filestorage.on.download.file.system.file.name.null"));
         Path filePath = getFullPath(systemFileName);
         try {
             byte[] bytes = Files.readAllBytes(filePath);
@@ -48,8 +47,7 @@ public class FileStorageImpl implements FileStorage {
             return bytes;
         } catch (IOException e) {
             logger.error("Unable to read stored section '{}'", filePath);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
+            throw new InvalidSystemStateException(e);
         }
     }
 
@@ -86,8 +84,7 @@ public class FileStorageImpl implements FileStorage {
             sectionFile.transferTo(filePath);
         } catch (Exception e) {
             logger.error("Unable to store file '{}'", filePath);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
+            throw new InvalidSystemStateException(e);
         }
     }
 
@@ -129,8 +126,7 @@ public class FileStorageImpl implements FileStorage {
 
     private void handleException(IOException e, Path filePath) {
         logger.error("Unable to remove stored section '{}'", filePath);
-        ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-        throw new InvalidSystemStateException(errorMessage, e);
+        throw new InvalidSystemStateException(e);
     }
 
     private Path getFullPath(String systemFileName) {
@@ -143,8 +139,7 @@ public class FileStorageImpl implements FileStorage {
             Files.createDirectories(storagePath);
         } catch (IOException e) {
             logger.error("Unable to create a base directory '{}'", basePath);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
-            throw new InvalidSystemStateException(errorMessage, e);
+            throw new InvalidSystemStateException(e);
         }
     }
 }

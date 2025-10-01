@@ -7,4 +7,8 @@ public class InvalidSystemStateException extends ApiException {
     public InvalidSystemStateException() {
         super("default.error.message");
     }
+
+    public InvalidSystemStateException(Exception cause) {
+        super("default.error.message", cause);
+    }
 }
