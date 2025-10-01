@@ -4,8 +4,6 @@ import com.example.documentstorage.entities.DataRecord;
 import com.example.documentstorage.entities.Field;
 import com.example.documentstorage.features.fields.requests.RemoveFieldsRequest;
 import com.example.documentstorage.features.fields.requests.UpdateFieldsRequest;
-import com.example.documentstorage.shared.base.apimessages.LocalizationService;
-import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import com.example.documentstorage.shared.base.exceptions.InvalidClientInputException;
 import com.example.documentstorage.shared.base.models.requests.FieldInfo;
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
@@ -23,11 +21,9 @@ import java.util.stream.Collectors;
 public class FieldServiceImpl implements FieldService {
     private static final Logger logger = LoggerFactory.getLogger(FieldServiceImpl.class);
     private final FieldDataRecordRepository dataRecordRepository;
-    private final LocalizationService localizationService;
 
-    public FieldServiceImpl(FieldDataRecordRepository dataRecordRepository, LocalizationService localizationService) {
+    public FieldServiceImpl(FieldDataRecordRepository dataRecordRepository) {
         this.dataRecordRepository = dataRecordRepository;
-        this.localizationService = localizationService;
     }
 
     @Override
@@ -37,8 +33,7 @@ public class FieldServiceImpl implements FieldService {
         DataRecord dataRecord = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Data record with id '{}' not found for data record field update", id);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.update.datarecord.datarecord.not.found", id);
-                    return new InvalidClientInputException(errorMessage);
+                    return new InvalidClientInputException("features.fields.on.update.datarecord.datarecord.not.found", id);
                 });
 
         List<Field> recordFields = dataRecord.getFields();
@@ -68,8 +63,7 @@ public class FieldServiceImpl implements FieldService {
         DataRecord dataRecord = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Data record with id '{}' not found for data record field remove", id);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.fields.on.remove.datarecord.datarecord.not.found", id);
-                    return new InvalidClientInputException(errorMessage);
+                    return new InvalidClientInputException("features.fields.on.remove.datarecord.datarecord.not.found", id);
                 });
 
         //ToDo add logic for unique field name constraints. unique index by datarecord id and field name. This way, only
