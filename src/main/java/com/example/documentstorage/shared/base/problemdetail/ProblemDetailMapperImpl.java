@@ -5,6 +5,7 @@ import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -24,7 +25,7 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
     }
 
     @Override
-    public ProblemDetail mapToProblemDetail(BindingResult result) {
+    public ResponseEntity<ProblemDetail> handleBindingResult(BindingResult result) {
         String typeName = Optional.ofNullable(result.getTarget())
                 .map(Object::getClass)
                 .map(Class::getName)
@@ -39,7 +40,11 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
 
         ProblemDetail problemDetail = ProblemDetail.forStatus(STATUS_CODE);
         fillProblemDetails(problemDetail, errorMessage, errors);
-        return problemDetail;
+
+        ResponseEntity<ProblemDetail> response = ResponseEntity
+                .status(problemDetail.getStatus())
+                .body(problemDetail);
+        return response;
     }
 
     @Override
