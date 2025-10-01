@@ -1,19 +1,17 @@
 package com.example.documentstorage.shared.base.problemdetail;
 
 import com.example.documentstorage.shared.base.apimessages.LocalizationService;
-import com.example.documentstorage.shared.base.exceptions.ApiException;
-import com.example.documentstorage.shared.base.exceptions.ApiExceptionError;
 import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProblemDetailMapperImpl implements ProblemDetailMapper {
@@ -33,60 +31,33 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
                 .orElse("");
 
         logger.warn("Validation failed for type '{}'", typeName);
-
-        ErrorMessage errorMessage = localizationService.getErrorMessage("validation.error.message");
-        List<ApiExceptionError> errorMessages = result.getAllErrors().stream()
-                //ToDo fix arguments for example map {max} to 20
-                .map(e -> localizationService.getErrorMessage(e.getDefaultMessage()))
-                .map(message -> {
-                    ApiExceptionError mock = new Mock(message);
-                    return mock;
-                })
+        List<String> errors = result.getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
                 .toList();
 
+        ErrorMessage errorMessage = localizationService.getErrorMessage("validation.error.message");
+
         ProblemDetail problemDetail = ProblemDetail.forStatus(STATUS_CODE);
-        problemDetail = fillProblemDetails(problemDetail, errorMessage, errorMessages);
+        fillProblemDetails(problemDetail, errorMessage, errors);
         return problemDetail;
     }
 
     @Override
-    public ProblemDetail fillProblemDetails(ProblemDetail problemDetail, ErrorMessage errorMessage, List<ApiExceptionError> errors)  {
+    public void fillProblemDetails(ProblemDetail problemDetail, ErrorMessage errorMessage, String... errors)  {
+        fillBaseFields(problemDetail, errorMessage);
+        problemDetail.setProperty("errors", errors);
+    }
+
+    @Override
+    public void fillProblemDetails(ProblemDetail problemDetail, ErrorMessage errorMessage, List<String> errors)  {
+        fillBaseFields(problemDetail, errorMessage);
+        problemDetail.setProperty("errors", errors);
+    }
+
+    private static void fillBaseFields(ProblemDetail problemDetail, ErrorMessage errorMessage) {
         problemDetail.setProperty("code", errorMessage.code());
         problemDetail.setProperty("timestamp", LocalDateTime.now());
         problemDetail.setProperty("errors", "ex.getErrors()");
         problemDetail.setProperty("timestamp", LocalDateTime.now());
-        problemDetail.setProperty("errors", errors);
-
-        return problemDetail;
-    }
-}
-
-//ToDo this is very bad
-class Mock implements ApiExceptionError {
-
-    private final ErrorMessage message;
-
-    public Mock(ErrorMessage message) {
-        this.message = message;
-    }
-    @Override
-    public String getCode() {
-        return message.code();
-    }
-
-    /**
-     * @return gets the title of the error
-     */
-    @Override
-    public String getTitle() {
-        return message.title();
-    }
-
-    /**
-     * @return gets the detail of the error
-     */
-    @Override
-    public String getDetail() {
-        return message.detail();
     }
 }
