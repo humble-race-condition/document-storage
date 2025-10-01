@@ -60,9 +60,9 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
     }
 
     private static void fillBaseFields(ProblemDetail problemDetail, ErrorMessage errorMessage) {
+        problemDetail.setTitle(errorMessage.title());
+        problemDetail.setDetail(errorMessage.detail());
         problemDetail.setProperty("code", errorMessage.code());
-        problemDetail.setProperty("timestamp", LocalDateTime.now());
-        problemDetail.setProperty("errors", "ex.getErrors()");
         problemDetail.setProperty("timestamp", LocalDateTime.now());
     }
 }
