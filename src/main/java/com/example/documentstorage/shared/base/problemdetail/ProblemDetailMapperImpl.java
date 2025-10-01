@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -34,6 +35,8 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
         logger.warn("Validation failed for type '{}'", typeName);
         List<String> errors = result.getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
+                .filter(Objects::nonNull)
+                .sorted()
                 .toList();
 
         ErrorMessage errorMessage = localizationService.getErrorMessage("validation.error.message");
