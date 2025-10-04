@@ -47,7 +47,7 @@ public class FieldServiceImpl implements FieldService {
             }
         }
 
-        dataRecord = dataRecordRepository.saveAndFlush(dataRecord);
+        dataRecordRepository.saveAndFlush(dataRecord);
 
         List<FieldDetail> fieldDetails = dataRecord.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))

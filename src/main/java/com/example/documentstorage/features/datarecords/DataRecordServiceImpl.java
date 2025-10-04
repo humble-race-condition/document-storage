@@ -107,7 +107,7 @@ public class DataRecordServiceImpl implements DataRecordService {
         record.setDescription(request.description());
         fields.forEach(record::addField);
 
-        record = dataRecordRepository.saveAndFlush(record);
+        dataRecordRepository.saveAndFlush(record);
 
         List<FieldDetail> fieldDetails = record.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
