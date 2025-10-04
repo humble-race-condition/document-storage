@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,16 +40,7 @@ public class FieldServiceImpl implements FieldService {
         Map<String, Field> existingFieldByName = recordFields.stream()
                 .collect(Collectors.toMap(Field::getName, x -> x));
 
-
-        List<FieldInfo> requestedFields = request.fields().stream()
-                .collect(Collectors.toMap(
-                        FieldInfo::name,
-                        Function.identity(),
-                        (first, second) -> Comparator.comparing(FieldInfo::value).compare(first, second) >= 0 ? first : second
-                ))
-                .values()
-                .stream()
-                .toList();
+        List<FieldInfo> requestedFields = filterDuplicateFieldNames(request);
 
         for (FieldInfo requestField : requestedFields) {
             if (existingFieldByName.containsKey(requestField.name())) {
@@ -106,6 +98,19 @@ public class FieldServiceImpl implements FieldService {
         Field existingField = existingFieldsByName.get(requestField.name());
         existingField.setName(requestField.name());
         existingField.setValue(requestField.value());
+    }
+
+    private static List<FieldInfo> filterDuplicateFieldNames(UpdateFieldsRequest request) {
+        List<FieldInfo> requestedFields = request.fields().stream()
+                .collect(Collectors.toMap(
+                        FieldInfo::name,
+                        Function.identity(),
+                        BinaryOperator.maxBy(Comparator.comparing(FieldInfo::value)))
+                )
+                .values()
+                .stream()
+                .toList();
+        return requestedFields;
     }
 
     private void validateRequest(RemoveFieldsRequest request) {
