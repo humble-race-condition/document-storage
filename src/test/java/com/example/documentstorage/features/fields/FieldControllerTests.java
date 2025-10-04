@@ -2,15 +2,16 @@ package com.example.documentstorage.features.fields;
 
 import com.example.documentstorage.features.fields.requests.RemoveFieldsRequest;
 import com.example.documentstorage.features.fields.requests.UpdateFieldsRequest;
-import com.example.documentstorage.shared.base.errorresponse.ErrorResponse;
 import com.example.documentstorage.shared.base.models.requests.FieldInfo;
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,7 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,15 +57,20 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(1);
-        assertThat(actualResponse.errors())
-                .anySatisfy(e -> {
-                    assertThat(e.code()).isEqualTo("1000");
-                    assertThat(e.message()).isEqualTo("The field name must not be blank");
-                });
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(1)
+                .containsExactly("The field info name can not be empty");
     }
 
     @Test
@@ -81,15 +87,20 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(1);
-        assertThat(actualResponse.errors())
-                .anySatisfy(e -> {
-                    assertThat(e.code()).isEqualTo("1000");
-                    assertThat(e.message()).isEqualTo("The field value must not be blank");
-                });
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(1)
+                .containsExactly("The field info value can not be empty");
     }
 
     @Test
@@ -106,17 +117,20 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(2);
-
-        assertThat(actualResponse.errors())
-                .allSatisfy(s -> assertThat(s.code()).isEqualTo("1000"));
-
-        assertThat(actualResponse.errors())
-                .anySatisfy(s -> assertThat(s.message()).isEqualTo("The field value must not be blank"))
-                .anySatisfy(s -> assertThat(s.message()).isEqualTo("The field name must not be blank"));
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(2)
+                .containsAll(List.of("The field info value can not be empty", "The field info value can not be empty"));
     }
 
     @Test
@@ -413,15 +427,20 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(1);
-        assertThat(actualResponse.errors())
-                .anySatisfy(e -> {
-                    assertThat(e.code()).isEqualTo("1000");
-                    assertThat(e.message()).isEqualTo("must not be blank");
-                });
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(1)
+                .containsExactly("The field name is empty");
     }
 
     @Test
