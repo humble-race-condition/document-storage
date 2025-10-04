@@ -1,4 +1,4 @@
-package com.example.documentstorage.features.fields;
+package com.example.documentstorage.integration.features.fields;
 
 import com.example.documentstorage.features.fields.requests.RemoveFieldsRequest;
 import com.example.documentstorage.features.fields.requests.UpdateFieldsRequest;
