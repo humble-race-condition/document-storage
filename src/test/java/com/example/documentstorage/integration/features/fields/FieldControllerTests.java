@@ -134,7 +134,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingNoNewValidFieldsWithNoExistingFields_shouldUpdateNoNewFields() throws Exception {
+    void updateFields_whenAddingNoNewValidFieldsWithNoExistingFields_shouldAddNoNewFields() throws Exception {
         List<FieldInfo> infos = List.of();
         UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
 
@@ -160,7 +160,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingTwoNewFieldWithNoExistingFields_shouldUpdateTwoFields() throws Exception {
+    void updateFields_whenAddingTwoNewFieldsWithNoExistingFields_shouldAddTwoFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -201,48 +201,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingTwoNewValidFieldsWithNoExistingFields_shouldUpdateTwoNewFields() throws Exception {
-        List<FieldInfo> infos = List.of(
-                new FieldInfo("Test 1", "Value 1"),
-                new FieldInfo("Test 2", "Value 2")
-        );
-        UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
-
-        MvcResult result = mockMvc.perform(put("/api/data-records/{id}/fields", 3)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = result.getResponse().getContentAsString();
-        DataRecordDetail actualResponse = objectMapper.readValue(json, DataRecordDetail.class);
-
-        assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.id()).isEqualTo(3);
-        assertThat(actualResponse.title()).isEqualTo("Storage bill");
-        assertThat(actualResponse.description()).isEqualTo("A bill for storage");
-        assertThat(actualResponse.sections())
-                .isNotNull()
-                .hasSize(0);
-        assertThat(actualResponse.fields())
-                .isNotNull()
-                .hasSize(2);
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 1");
-                    assertThat(field.value()).isEqualTo("Value 1");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 2");
-                    assertThat(field.value()).isEqualTo("Value 2");
-                });
-    }
-
-    @Test
-    void addFields_whenAddingTwoNewValidFieldsWithExistingFields_shouldUpdateTwoNewFields() throws Exception {
+    void updateFields_whenAddingTwoNewValidFieldsWithExistingFields_shouldAddTwoNewFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -345,7 +304,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndUpdateOneNewField() throws Exception {
+    void updateFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndAddOneNewField() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("IBAN", "OVERRIDDEN"),
                 new FieldInfo("Test 1", "Value 1")
