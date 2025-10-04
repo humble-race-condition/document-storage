@@ -12,9 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +38,19 @@ public class FieldServiceImpl implements FieldService {
         List<Field> recordFields = dataRecord.getFields();
         Map<String, Field> existingFieldByName = recordFields.stream()
                 .collect(Collectors.toMap(Field::getName, x -> x));
-        for (FieldInfo requestField : request.fields()) {
+
+
+        List<FieldInfo> requestedFields = request.fields().stream()
+                .collect(Collectors.toMap(
+                        FieldInfo::name,
+                        Function.identity(),
+                        (first, second) -> Comparator.comparing(FieldInfo::value).compare(first, second) >= 0 ? first : second
+                ))
+                .values()
+                .stream()
+                .toList();
+
+        for (FieldInfo requestField : requestedFields) {
             if (existingFieldByName.containsKey(requestField.name())) {
                 updateExistingField(existingFieldByName, requestField);
             } else {
