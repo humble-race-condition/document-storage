@@ -1,24 +1,17 @@
 package com.example.documentstorage.config;
 
 import com.example.documentstorage.shared.base.apimessages.LocalizationService;
-import com.example.documentstorage.shared.base.errorresponse.ErrorResponse;
 import com.example.documentstorage.shared.base.exceptions.ApiException;
 import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import com.example.documentstorage.shared.base.exceptions.InvalidClientInputException;
 import com.example.documentstorage.shared.base.exceptions.InvalidSystemStateException;
 import com.example.documentstorage.shared.base.problemdetail.ProblemDetailMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Optional;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -32,7 +25,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleException(Exception ex, HttpServletRequest request) {
+    public ProblemDetail handleException(Exception ex) {
         logger.error("An unexpected error occurred", ex);
         ErrorMessage errorMessage = localizationService.getErrorMessage("default.error.message");
 

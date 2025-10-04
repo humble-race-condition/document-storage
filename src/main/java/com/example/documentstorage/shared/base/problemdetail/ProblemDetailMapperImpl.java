@@ -52,23 +52,23 @@ public class ProblemDetailMapperImpl implements ProblemDetailMapper {
 
     @Override
     public ProblemDetail generateProblemDetails(HttpStatus status, ErrorMessage errorMessage, List<String> errors) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
-        fillBaseFields(problemDetail, errorMessage, errors);
+        ProblemDetail problemDetail = generateProblemDetail(status, errorMessage, errors);
         return problemDetail;
     }
 
     @Override
     public ProblemDetail generateProblemDetails(HttpStatus status, ErrorMessage errorMessage) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
-        fillBaseFields(problemDetail, errorMessage, List.of());
+        ProblemDetail problemDetail = generateProblemDetail(status, errorMessage, List.of());
         return problemDetail;
     }
 
-    private static void fillBaseFields(ProblemDetail problemDetail, ErrorMessage errorMessage, List<String> errors) {
+    private static ProblemDetail generateProblemDetail(HttpStatus status, ErrorMessage errorMessage, List<String> errors) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
         problemDetail.setTitle(errorMessage.title());
         problemDetail.setDetail(errorMessage.detail());
         problemDetail.setProperty("code", errorMessage.code());
         problemDetail.setProperty("errors", errors);
         problemDetail.setProperty("timestamp", LocalDateTime.now());
+        return problemDetail;
     }
 }
