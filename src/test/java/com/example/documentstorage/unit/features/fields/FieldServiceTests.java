@@ -448,8 +448,8 @@ class FieldServiceTests {
         secondExisting.setValue("Existing value 2");
 
         Field thridField = new Field();
-        secondExisting.setName("Existing 3");
-        secondExisting.setValue("Existing value 3");
+        thridField.setName("Existing 3");
+        thridField.setValue("Existing value 3");
         dataRecord.setFields(new ArrayList<>(List.of(thridField, firstExisting, secondExisting)));
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
