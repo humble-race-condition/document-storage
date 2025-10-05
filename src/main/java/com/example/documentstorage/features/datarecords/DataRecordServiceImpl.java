@@ -4,8 +4,6 @@ import com.example.documentstorage.entities.DataRecord;
 import com.example.documentstorage.entities.Field;
 import com.example.documentstorage.features.datarecords.requests.CreateDataRecordRequest;
 import com.example.documentstorage.features.datarecords.requests.UpdateDataRecordRequest;
-import com.example.documentstorage.shared.base.apimessages.LocalizationService;
-import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import com.example.documentstorage.shared.base.exceptions.InvalidClientInputException;
 import com.example.documentstorage.shared.base.registers.FilterCriteria;
 import com.example.documentstorage.shared.base.registers.PaginationCriteria;
@@ -29,14 +27,11 @@ public class DataRecordServiceImpl implements DataRecordService {
 
     private final DataRecordRepository dataRecordRepository;
     private final RegisterCriteriaParser registerCriteriaParser;
-    private final LocalizationService localizationService;
 
     public DataRecordServiceImpl(DataRecordRepository dataRecordRepository,
-                                 RegisterCriteriaParser registerCriteriaParser,
-                                 LocalizationService localizationService) {
+                                 RegisterCriteriaParser registerCriteriaParser) {
         this.dataRecordRepository = dataRecordRepository;
         this.registerCriteriaParser = registerCriteriaParser;
-        this.localizationService = localizationService;
     }
 
     /**
@@ -49,9 +44,8 @@ public class DataRecordServiceImpl implements DataRecordService {
     public DataRecordDetail getDataRecordById(int id) {
         DataRecord record = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for data record get by id", id);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.datarecords.on.datarecord.get.by.id.datarecord.not.found", id);
-                    return new InvalidClientInputException(errorMessage);
+                    logger.warn("Data record with id '{}' not found for data record get by id", id);
+                    return new InvalidClientInputException("features.datarecords.on.datarecord.get.by.id.datarecord.not.found", id);
                 });
 
         List<FieldDetail> fieldDetails = record.getFields().stream()
@@ -113,7 +107,7 @@ public class DataRecordServiceImpl implements DataRecordService {
         record.setDescription(request.description());
         fields.forEach(record::addField);
 
-        record = dataRecordRepository.saveAndFlush(record);
+        dataRecordRepository.saveAndFlush(record);
 
         List<FieldDetail> fieldDetails = record.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
@@ -132,9 +126,8 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         DataRecord dataRecord = dataRecordRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for data record update", id);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.datarecords.on.datarecord.update.datarecord.not.found", id);
-                    return new InvalidClientInputException(errorMessage);
+                    logger.warn("Data record with id '{}' not found for data record update", id);
+                    return new InvalidClientInputException("features.datarecords.on.datarecord.update.datarecord.not.found", id);
                 });
 
         dataRecord.setTitle(request.title());

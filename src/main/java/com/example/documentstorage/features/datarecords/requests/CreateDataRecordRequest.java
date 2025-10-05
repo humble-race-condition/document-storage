@@ -9,13 +9,13 @@ import org.hibernate.validator.constraints.Length;
 import java.util.List;
 
 public record CreateDataRecordRequest(
-        @NotEmpty
-        @Length(min = 3, max = 100)
+        @NotEmpty(message = "{features.datarecords.requests.create.datarecord.title.empty}")
+        @Length(message = "{features.datarecords.requests.create.datarecord.title.invalid.length}", min = 3, max = 100)
         String title,
-        @NotEmpty
-        @Length(min = 3, max = 100)
+        @NotEmpty(message = "{features.datarecords.requests.create.datarecord.description.empty}")
+        @Length(message = "{features.datarecords.requests.create.datarecord.description.invalid.length}", min = 3, max = 100)
         String description,
-        @NotNull
+        @NotNull(message = "{features.datarecords.requests.create.datarecord.fields.invalid}")
         @Valid
         List<FieldInfo> fields) {
 }

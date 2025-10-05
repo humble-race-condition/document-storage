@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
 
 public record FieldInfo(
-        @NotBlank(message = "The field name must not be blank")
-        @Length(min = 2, max = 20, message = "The field name must be between {min} and {max}")
+        @NotBlank(message = "{shared.base.models.requests.field.info.name.empty}")
+        @Length(min = 2, max = 20, message = "{shared.base.models.requests.field.info.name.invalid.length}")
         String name,
-        @NotBlank(message = "The field value must not be blank")
-        @Length(min = 2, max = 20, message = "The field value must be between {min} and {max}")
+        @NotBlank(message = "{shared.base.models.requests.field.info.value.empty}")
+        @Length(min = 2, max = 20, message = "{shared.base.models.requests.field.info.value.invalid.length}")
         String value) {
 }

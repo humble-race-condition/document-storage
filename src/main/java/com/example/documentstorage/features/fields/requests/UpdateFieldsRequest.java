@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record UpdateFieldsRequest(
-        @NotNull
+        @NotNull(message = "{features.fields.requests.update.fields.invalid}")
         @Valid
         List<FieldInfo> fields) {
 }

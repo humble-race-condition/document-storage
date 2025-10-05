@@ -73,7 +73,13 @@ pipeline {
             }
         }
 
-        stage("Test build") {
+        stage("Run unit tests") {
+            steps {
+                sh "mvn clean -Dtest=\"com.example.documentstorage.unit.**\" test"
+            }
+        }
+
+        stage("Run all tests") {
             steps {
                 sh "mvn clean test"
             }

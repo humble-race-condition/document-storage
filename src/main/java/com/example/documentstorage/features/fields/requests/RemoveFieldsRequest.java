@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record RemoveFieldsRequest(
-        @NotNull
-        List<@NotBlank String> fields) {
+        @NotNull(message = "{features.fields.requests.remove.fields.invalid}")
+        List<@NotBlank(message = "{features.fields.requests.remove.fields.name.empty}") String> fields) {
 }
