@@ -45,7 +45,7 @@ class FieldServiceTests {
         assertThatThrownBy(() -> fieldService.updateDataRecordFields(1, request))
                 .isInstanceOf(InvalidClientInputException.class)
                 .hasMessage("Key for message 'features.fields.on.update.datarecord.datarecord.not.found'");
-        //ToDO order on every test
+
         verify(repository, times(1)).findById(1);
     }
 
@@ -83,14 +83,15 @@ class FieldServiceTests {
         assertThat(actualResponse.fields()).isNotNull();
         assertThat(actualResponse.fields()).hasSize(2);
         assertThat(actualResponse.fields())
-                //ToDo order on every test
-                .anySatisfy(field -> {
+                .element(0)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Name 1");
                     assertThat(field.value()).isEqualTo("Value 1");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Name 2");
                     assertThat(field.value()).isEqualTo("Value 2");
                 });
