@@ -3,14 +3,12 @@ package com.example.documentstorage.features.sections;
 import com.example.documentstorage.entities.DataRecord;
 import com.example.documentstorage.entities.Section;
 import com.example.documentstorage.entities.TransactionActionRecord;
-import com.example.documentstorage.shared.base.apimessages.LocalizationService;
-import com.example.documentstorage.shared.base.exceptions.ErrorMessage;
 import com.example.documentstorage.shared.base.exceptions.InvalidClientInputException;
+import com.example.documentstorage.shared.base.filestorage.ActionType;
 import com.example.documentstorage.shared.base.filestorage.FileStorage;
+import com.example.documentstorage.shared.base.filestorage.TransactionActionRecordRepository;
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
 import com.example.documentstorage.shared.base.models.responses.SectionDetail;
-import com.example.documentstorage.shared.base.filestorage.ActionType;
-import com.example.documentstorage.shared.base.filestorage.TransactionActionRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,35 +26,31 @@ public class SectionServiceImpl implements SectionService {
     private final TransactionActionRecordRepository transactionActionRepository;
     private final TransactionTemplate transactionTemplate;
     private final FileStorage fileStorage;
-    private final LocalizationService localizationService;
 
     public SectionServiceImpl(
             SectionDataRecordRepository dataRecordRepository,
             TransactionActionRecordRepository transactionActionRecordRepository,
             TransactionTemplate transactionTemplate,
-            FileStorage fileStorage,
-            LocalizationService localizationService) {
+            FileStorage fileStorage) {
         this.dataRecordRepository = dataRecordRepository;
         this.transactionActionRepository = transactionActionRecordRepository;
         this.transactionTemplate = transactionTemplate;
         this.fileStorage = fileStorage;
-        this.localizationService = localizationService;
     }
 
     /**
      * Downloads the section file by the section id
      *
      * @param dataRecordId the id of the data record
-     * @param sectionId the id of the section
+     * @param sectionId    the id of the section
      * @return file of the section
      */
     @Override
     public SectionData downloadSection(int dataRecordId, int sectionId) {
         SectionDownloadData sectionDownloadData = dataRecordRepository.findByIdAndSectionId(dataRecordId, sectionId)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.download.datarecord.not.found", sectionId);
-                    return new InvalidClientInputException(errorMessage);
+                    logger.warn("Data record with id '{}' and section id '{}' not found for download", dataRecordId, sectionId);
+                    return new InvalidClientInputException("features.sections.on.section.download.datarecord.not.found", sectionId);
                 });
 
         byte[] bytes = fileStorage.downloadFile(sectionDownloadData.storageLocation());
@@ -112,9 +106,8 @@ public class SectionServiceImpl implements SectionService {
         DataRecord dataRecord = dataRecordRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for section removal", dataRecordId);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.removal.datarecord.not.found", dataRecordId);
-                    return new InvalidClientInputException(errorMessage);
+                    logger.warn("Data record with id '{}' not found for section removal", dataRecordId);
+                    return new InvalidClientInputException("features.sections.on.section.removal.datarecord.not.found", dataRecordId);
                 });
 
         List<Section> sections = dataRecord.getSections()
@@ -123,9 +116,8 @@ public class SectionServiceImpl implements SectionService {
                 .toList();
 
         if (sections.size() != 1) {
-            logger.error("Data record with id '{}' either has zero or more than one sections with the section id '{}'", dataRecordId, sectionId);
-            ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.removal.multiple.sections", sectionId);
-            throw new InvalidClientInputException(errorMessage);
+            logger.warn("Data record with id '{}' either has zero or more than one sections with the section id '{}'", dataRecordId, sectionId);
+            throw new InvalidClientInputException("features.sections.on.section.removal.multiple.sections", sectionId);
         }
 
         Section removedSection = sections.getFirst();
@@ -171,9 +163,8 @@ public class SectionServiceImpl implements SectionService {
         DataRecord dataRecord = dataRecordRepository
                 .findById(dataRecordId)
                 .orElseThrow(() -> {
-                    logger.error("Data record with id '{}' not found for section upload", dataRecordId);
-                    ErrorMessage errorMessage = localizationService.getErrorMessage("features.sections.on.section.upload.datarecord.not.found", dataRecordId);
-                    return new InvalidClientInputException(errorMessage);
+                    logger.warn("Data record with id '{}' not found for section upload", dataRecordId);
+                    return new InvalidClientInputException("features.sections.on.section.upload.datarecord.not.found", dataRecordId);
                 });
 
         Section sectionRecord = new Section();

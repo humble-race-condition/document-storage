@@ -1,21 +1,26 @@
 package com.example.documentstorage.features.datarecords;
 
 import com.example.documentstorage.features.datarecords.requests.CreateDataRecordRequest;
+import com.example.documentstorage.shared.base.problemdetail.ProblemDetailMapper;
 import com.example.documentstorage.shared.base.registers.FilterCriteria;
 import com.example.documentstorage.shared.base.registers.PaginationCriteria;
 import com.example.documentstorage.features.datarecords.requests.UpdateDataRecordRequest;
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
 import jakarta.validation.Valid;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/data-records")
 public class DataRecordController {
     private final DataRecordService dataRecordService;
+    private final ProblemDetailMapper problemDetailMapper;
 
-    public DataRecordController(DataRecordService dataRecordService) {
+    public DataRecordController(DataRecordService dataRecordService, ProblemDetailMapper problemDetailMapper) {
         this.dataRecordService = dataRecordService;
+        this.problemDetailMapper = problemDetailMapper;
     }
 
     /**
@@ -49,7 +54,12 @@ public class DataRecordController {
      * @return {@link DataRecordDetail} the data record details
      */
     @PostMapping
-    public ResponseEntity<DataRecordDetail> createDataRecord(@Valid @RequestBody CreateDataRecordRequest request) {
+    public ResponseEntity<?> createDataRecord(@Valid @RequestBody CreateDataRecordRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            ResponseEntity<ProblemDetail> responseEntity = problemDetailMapper.handleBindingResult(bindingResult);
+            return responseEntity;
+        }
+
         DataRecordDetail dataRecord = dataRecordService.createDataRecord(request);
         return ResponseEntity.ok().body(dataRecord);
     }
@@ -62,7 +72,12 @@ public class DataRecordController {
      * @return {@link DataRecordDetail} the updated DataRecordDetails
      */
     @PutMapping("/{id}")
-    public ResponseEntity<DataRecordDetail> updateDataRecord(@PathVariable int id, @Valid @RequestBody UpdateDataRecordRequest request) {
+    public ResponseEntity<?> updateDataRecord(@PathVariable int id, @Valid @RequestBody UpdateDataRecordRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            ResponseEntity<ProblemDetail> responseEntity = problemDetailMapper.handleBindingResult(bindingResult);
+            return responseEntity;
+        }
+
         DataRecordDetail dataRecord = dataRecordService.updateDataRecord(id, request);
         return ResponseEntity.ok().body(dataRecord);
     }

@@ -1,16 +1,17 @@
-package com.example.documentstorage.features.fields;
+package com.example.documentstorage.integration.features.fields;
 
 import com.example.documentstorage.features.fields.requests.RemoveFieldsRequest;
 import com.example.documentstorage.features.fields.requests.UpdateFieldsRequest;
-import com.example.documentstorage.shared.base.errorresponse.ErrorResponse;
 import com.example.documentstorage.shared.base.models.requests.FieldInfo;
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -56,15 +57,20 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(1);
-        assertThat(actualResponse.errors())
-                .anySatisfy(e -> {
-                    assertThat(e.code()).isEqualTo("1000");
-                    assertThat(e.message()).isEqualTo("The field name must not be blank");
-                });
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(1)
+                .containsExactly("The field info name can not be empty");
     }
 
     @Test
@@ -81,15 +87,20 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(1);
-        assertThat(actualResponse.errors())
-                .anySatisfy(e -> {
-                    assertThat(e.code()).isEqualTo("1000");
-                    assertThat(e.message()).isEqualTo("The field value must not be blank");
-                });
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(1)
+                .containsExactly("The field info value can not be empty");
     }
 
     @Test
@@ -106,21 +117,24 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(2);
-
-        assertThat(actualResponse.errors())
-                .allSatisfy(s -> assertThat(s.code()).isEqualTo("1000"));
-
-        assertThat(actualResponse.errors())
-                .anySatisfy(s -> assertThat(s.message()).isEqualTo("The field value must not be blank"))
-                .anySatisfy(s -> assertThat(s.message()).isEqualTo("The field name must not be blank"));
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(2)
+                .containsAll(List.of("The field info value can not be empty", "The field info value can not be empty"));
     }
 
     @Test
-    void addFields_whenAddingNoNewValidFieldsWithNoExistingFields_shouldUpdateNoNewFields() throws Exception {
+    void updateFields_whenAddingNoNewValidFieldsWithNoExistingFields_shouldAddNoNewFields() throws Exception {
         List<FieldInfo> infos = List.of();
         UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
 
@@ -146,7 +160,7 @@ class FieldControllerTests {
     }
 
     @Test
-    void addFields_whenAddingTwoNewFieldWithNoExistingFields_shouldUpdateTwoFields() throws Exception {
+    void updateFields_whenAddingTwoNewFieldsWithNoExistingFields_shouldAddTwoFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -174,61 +188,22 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 1");
-                    assertThat(field.value()).isEqualTo("Value 1");
+                .element(0)
+                .satisfies(f -> {
+                    assertThat(f.name()).isEqualTo("Test 1");
+                    assertThat(f.value()).isEqualTo("Value 1");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 2");
-                    assertThat(field.value()).isEqualTo("Value 2");
-                });
-    }
-
-    @Test
-    void addFields_whenAddingTwoNewValidFieldsWithNoExistingFields_shouldUpdateTwoNewFields() throws Exception {
-        List<FieldInfo> infos = List.of(
-                new FieldInfo("Test 1", "Value 1"),
-                new FieldInfo("Test 2", "Value 2")
-        );
-        UpdateFieldsRequest request = new UpdateFieldsRequest(infos);
-
-        MvcResult result = mockMvc.perform(put("/api/data-records/{id}/fields", 3)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = result.getResponse().getContentAsString();
-        DataRecordDetail actualResponse = objectMapper.readValue(json, DataRecordDetail.class);
-
-        assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.id()).isEqualTo(3);
-        assertThat(actualResponse.title()).isEqualTo("Storage bill");
-        assertThat(actualResponse.description()).isEqualTo("A bill for storage");
-        assertThat(actualResponse.sections())
-                .isNotNull()
-                .hasSize(0);
-        assertThat(actualResponse.fields())
-                .isNotNull()
-                .hasSize(2);
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 1");
-                    assertThat(field.value()).isEqualTo("Value 1");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 2");
-                    assertThat(field.value()).isEqualTo("Value 2");
+                .element(1)
+                .satisfies(f -> {
+                    assertThat(f.name()).isEqualTo("Test 2");
+                    assertThat(f.value()).isEqualTo("Value 2");
                 });
     }
 
     @Test
-    void addFields_whenAddingTwoNewValidFieldsWithExistingFields_shouldUpdateTwoNewFields() throws Exception {
+    void updateFields_whenAddingTwoNewValidFieldsWithExistingFields_shouldAddTwoNewFields() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("Test 1", "Value 1"),
                 new FieldInfo("Test 2", "Value 2")
@@ -256,31 +231,36 @@ class FieldControllerTests {
                 .hasSize(5);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("112233");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Beneficiary");
-                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(0)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Alpha");
                     assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("112233");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(3)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Test 1");
                     assertThat(field.value()).isEqualTo("Value 1");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(4)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Test 2");
                     assertThat(field.value()).isEqualTo("Value 2");
                 });
@@ -312,26 +292,29 @@ class FieldControllerTests {
                 .hasSize(3);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Beneficiary");
                     assertThat(field.value()).isEqualTo("TODOR GOGOV");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
                 });
     }
 
     @Test
-    void addFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndUpdateOneNewField() throws Exception {
+    void updateFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndAddOneNewField() throws Exception {
         List<FieldInfo> infos = List.of(
                 new FieldInfo("IBAN", "OVERRIDDEN"),
                 new FieldInfo("Test 1", "Value 1")
@@ -359,31 +342,34 @@ class FieldControllerTests {
                 .hasSize(4);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Beneficiary");
-                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(0)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Alpha");
                     assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(3)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Test 1");
                     assertThat(field.value()).isEqualTo("Value 1");
                 });
     }
 
-    //ToDo no transactional on tests - bugs can happen due to it.
     @Test
     void updateFields_whenAddingOneNewField_shouldStoreFieldInDatabase() throws Exception {
         List<FieldInfo> infos = List.of(
@@ -413,15 +399,20 @@ class FieldControllerTests {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ErrorResponse actualResponse = objectMapper.readValue(json, ErrorResponse.class);
+        ProblemDetail actualResponse = objectMapper.readValue(json, ProblemDetail.class);
 
         assertThat(actualResponse).isNotNull();
-        assertThat(actualResponse.errors()).hasSize(1);
-        assertThat(actualResponse.errors())
-                .anySatisfy(e -> {
-                    assertThat(e.code()).isEqualTo("1000");
-                    assertThat(e.message()).isEqualTo("must not be blank");
-                });
+        assertThat(actualResponse.getStatus()).isEqualTo(400);
+        assertThat(actualResponse.getTitle()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getDetail()).isEqualTo("You have entered invalid data");
+        assertThat(actualResponse.getProperties()).isNotNull();
+        assertThat(actualResponse.getProperties().get("code")).isEqualTo("VALIDATION_ERROR_MESSAGE");
+        assertThat(actualResponse.getProperties().get("timestamp")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors")).isNotNull();
+        assertThat(actualResponse.getProperties().get("errors"))
+                .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                .hasSize(1)
+                .containsExactly("The field name is empty");
     }
 
     @Test
@@ -479,21 +470,24 @@ class FieldControllerTests {
                 .hasSize(3);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("112233");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Beneficiary");
                     assertThat(field.value()).isEqualTo("TODOR GOGOV");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("112233");
                 });
     }
 
@@ -525,15 +519,17 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Beneficiary");
-                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
                 });
     }
 
@@ -567,15 +563,17 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("112233");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("112233");
                 });
     }
 
