@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,10 +51,13 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         List<FieldDetail> fieldDetails = record.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
+                .sorted(Comparator.comparing(FieldDetail::name))
                 .toList();
-
+        //ToDo order everywhere
+        //ToDo combine login for data record detail somewhere
         List<SectionDetail> sectionDetails = record.getSections().stream()
                 .map(s -> new SectionDetail(s.getId(), s.getFileName(), s.getStorageLocation()))
+                .sorted(Comparator.comparing(SectionDetail::fileName))
                 .toList();
 
         DataRecordDetail dataRecordDetail = new DataRecordDetail(record.getId(), record.getTitle(), record.getDescription(), fieldDetails, sectionDetails);
