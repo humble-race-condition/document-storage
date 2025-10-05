@@ -1,6 +1,7 @@
 package com.example.documentstorage.unit.features.fields;
 
 import com.example.documentstorage.entities.DataRecord;
+import com.example.documentstorage.entities.Field;
 import com.example.documentstorage.features.fields.FieldDataRecordRepository;
 import com.example.documentstorage.features.fields.FieldServiceImpl;
 import com.example.documentstorage.features.fields.requests.UpdateFieldsRequest;
@@ -18,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -60,9 +62,6 @@ class FieldServiceTests {
         assertThat(response).isNotNull();
         assertThat(response.fields()).isNotNull();
         assertThat(response.fields()).isEmpty();
-
-        verify(repository, times(1)).findById(1);
-        verify(repository, times(1)).saveAndFlush(dataRecord);
     }
 
     @Test
@@ -94,9 +93,6 @@ class FieldServiceTests {
                     assertThat(field.name()).isEqualTo("Name 2");
                     assertThat(field.value()).isEqualTo("Value 2");
                 });
-
-        verify(repository, times(1)).findById(1);
-        verify(repository, times(1)).saveAndFlush(dataRecord);
     }
 
     @Test
@@ -122,29 +118,160 @@ class FieldServiceTests {
                     assertThat(field.name()).isEqualTo("Name 1");
                     assertThat(field.value()).isEqualTo("Value 2");
                 });
-
-        verify(repository, times(1)).findById(1);
-        verify(repository, times(1)).saveAndFlush(dataRecord);
     }
 
     @Test
     void updateDataRecordFields_whenAddingTwoNewValidFieldsWithExistingFields_shouldAddTwoNewFields() {
+        List<FieldInfo> fieldInfos = List.of(
+                new FieldInfo("Name 1", "Value 1"),
+                new FieldInfo("Name 2", "Value 2")
+        );
+        UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
 
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(4);
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 1");
+                    assertThat(field.value()).isEqualTo("Existing value 1");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 2");
+                    assertThat(field.value()).isEqualTo("Existing value 2");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Name 1");
+                    assertThat(field.value()).isEqualTo("Value 1");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(3)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Name 2");
+                    assertThat(field.value()).isEqualTo("Value 2");
+                });
     }
 
     @Test
     void updateFields_whenAddingOneOverridingFieldWithExistingFields_shouldOverrideExistingField() {
+        List<FieldInfo> fieldInfos = List.of(
+                new FieldInfo("Existing 1", "Overridden Value")
+        );
+        UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
 
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(2);
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 1");
+                    assertThat(field.value()).isEqualTo("Overridden Value");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 2");
+                    assertThat(field.value()).isEqualTo("Existing value 2");
+                });
     }
 
     @Test
-    void updateDataRecordFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndAddOneNewField() {
+    void updateFields_whenAddingOneOverridingFieldAndOneNewFieldWithExistingFields_shouldOverrideExistingFieldAndAddOneNewField() {
+        List<FieldInfo> fieldInfos = List.of(
+                new FieldInfo("Existing 1", "Overridden Value"),
+                new FieldInfo("Name 1", "Value 1")
+        );
+        UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
 
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(3);
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 1");
+                    assertThat(field.value()).isEqualTo("Overridden Value");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 2");
+                    assertThat(field.value()).isEqualTo("Existing value 2");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Name 1");
+                    assertThat(field.value()).isEqualTo("Value 1");
+                });
     }
 
     @Test
     void updateFields_whenAddingOneNewField_shouldStoreFieldInDatabase() {
+        List<FieldInfo> fieldInfos = List.of(
+                new FieldInfo("Name 1", "Value 1")
+        );
+        UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        dataRecord.setFields(new ArrayList<>());
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
+        fieldService.updateDataRecordFields(1, request);
+
+        verify(repository, times(1)).findById(1);
+        verify(repository, times(1)).saveAndFlush(dataRecord);
     }
 
     @Test
