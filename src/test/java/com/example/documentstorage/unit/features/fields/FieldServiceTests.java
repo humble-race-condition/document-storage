@@ -53,9 +53,7 @@ class FieldServiceTests {
     void updateDataRecordFields_whenAddingNoNewValidFieldsWithNoExistingFields_shouldAddNoNewFields() {
         List<FieldInfo> fieldInfos = List.of();
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
-        dataRecord.setFields(List.of());
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>());
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail response = fieldService.updateDataRecordFields(1, request);
@@ -72,9 +70,7 @@ class FieldServiceTests {
                 new FieldInfo("Name 2", "Value 2")
         );
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
-        dataRecord.setFields(new ArrayList<>());
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>());
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
@@ -104,9 +100,8 @@ class FieldServiceTests {
                 new FieldInfo("Name 1", "Value 2")
         );
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
-        dataRecord.setFields(new ArrayList<>());
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>());
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
@@ -129,11 +124,11 @@ class FieldServiceTests {
                 new FieldInfo("Name 2", "Value 2")
         );
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
+
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
@@ -176,11 +171,10 @@ class FieldServiceTests {
                 new FieldInfo("Existing 1", "Overridden Value")
         );
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
@@ -210,11 +204,10 @@ class FieldServiceTests {
                 new FieldInfo("Name 1", "Value 1")
         );
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
@@ -250,11 +243,10 @@ class FieldServiceTests {
                 new FieldInfo("Greater name", "Some value")
         );
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Higher name", "Higher value");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
@@ -290,9 +282,8 @@ class FieldServiceTests {
                 new FieldInfo("Name 1", "Value 1")
         );
         UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
-        dataRecord.setFields(new ArrayList<>());
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>());
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         fieldService.updateDataRecordFields(1, request);
@@ -305,9 +296,8 @@ class FieldServiceTests {
     void removeDataRecordFields_whenRemovingTwoFieldsFromDataRecordWithNoFields_shouldReturnNoFields() {
         List<String> inputFields = List.of("Name 1", "Name 2");
         RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
-        dataRecord.setFields(new ArrayList<>());
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>());
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
@@ -321,11 +311,10 @@ class FieldServiceTests {
     void removeDataRecordFields_whenRemovingNoFieldsFromDataRecordWithFields_shouldReturnExistingFields() {
         List<String> inputFields = List.of();
         RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
@@ -353,11 +342,11 @@ class FieldServiceTests {
     void removeDataRecordFields_whenRemovingOneValidFieldsFromDataRecordWithFields_shouldRemoveOneField() {
         List<String> inputFields = List.of("Existing 1");
         RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
+
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
@@ -378,11 +367,10 @@ class FieldServiceTests {
     void removeDataRecordFields_whenRemovingOneValidAndOneInvalidFieldsFromDataRecordWithFields_shouldRemoveOneField() {
         List<String> inputFields = List.of("Existing 1", "Invalid field");
         RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
+
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
@@ -403,15 +391,11 @@ class FieldServiceTests {
     void removeDataRecordFields_whenRemovingOneValidFromDataRecordWithFields_shouldReturnOrderedFields() {
         List<String> inputFields = List.of("Existing 1");
         RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
+        Field thridField = createField("Existing 3", "Existing value 3");
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(thridField, firstExisting, secondExisting)));
 
-        Field thridField = new Field();
-        thridField.setName("Existing 3");
-        thridField.setValue("Existing value 3");
-        dataRecord.setFields(new ArrayList<>(List.of(thridField, firstExisting, secondExisting)));
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
@@ -439,11 +423,10 @@ class FieldServiceTests {
     void removeDataRecordFields_whenRemovingOneValidFieldFromDataRecordWithFields_shouldCallDatabase() {
         List<String> inputFields = List.of("Existing 1");
         RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
-        DataRecord dataRecord = new DataRecord();
-        dataRecord.setId(1);
         Field firstExisting = createField("Existing 1", "Existing value 1");
         Field secondExisting = createField("Existing 2", "Existing value 2");
-        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+
+        DataRecord dataRecord = createDataRecord(1, new ArrayList<>(List.of(firstExisting, secondExisting)));
         Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
         fieldService.removeDataRecordFields(1, request);
@@ -452,11 +435,9 @@ class FieldServiceTests {
         verify(repository, times(1)).saveAndFlush(dataRecord);
     }
 
-    private static DataRecord createDataRecord(int id, String title, String description, List<Field> fields) {
+    private static DataRecord createDataRecord(int id, List<Field> fields) {
         DataRecord dataRecord = new DataRecord();
         dataRecord.setId(id);
-        dataRecord.setTitle(title);
-        dataRecord.setDescription(description);
         dataRecord.setFields(fields);
         dataRecord.setSections(new ArrayList<>());
         return dataRecord;
