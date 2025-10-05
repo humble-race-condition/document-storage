@@ -285,7 +285,7 @@ class FieldServiceTests {
                 .element(0)
                 .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Existing 1");
-                    assertThat(field.value()).isEqualTo("Overridden Value");
+                    assertThat(field.value()).isEqualTo("Existing value 1");
                 });
 
         assertThat(actualResponse.fields())
