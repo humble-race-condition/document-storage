@@ -5,7 +5,9 @@ import com.example.documentstorage.entities.Field;
 import com.example.documentstorage.entities.Section;
 import com.example.documentstorage.features.datarecords.DataRecordRepository;
 import com.example.documentstorage.features.datarecords.DataRecordServiceImpl;
+import com.example.documentstorage.features.datarecords.requests.CreateDataRecordRequest;
 import com.example.documentstorage.shared.base.exceptions.InvalidClientInputException;
+import com.example.documentstorage.shared.base.models.requests.FieldInfo;
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -172,6 +175,76 @@ class DataRecordServiceTests {
         });
     }
 
+    @Test
+    void createDataRecord_whenTitleAndDescriptionAndNoFields_shouldCreateDataRecord() {
+        CreateDataRecordRequest request = new CreateDataRecordRequest(
+                "Some title",
+                "Some description",
+                new ArrayList<>()
+        );
+
+        DataRecordDetail actualDataRecord = dataRecordService.createDataRecord(request);
+
+        assertThat(actualDataRecord).isNotNull();
+        assertThat(actualDataRecord.title()).isEqualTo("Some title");
+        assertThat(actualDataRecord.description()).isEqualTo("Some description");
+        assertThat(actualDataRecord.fields()).isNotNull();
+        assertThat(actualDataRecord.fields()).isEmpty();
+        assertThat(actualDataRecord.sections()).isNotNull();
+        assertThat(actualDataRecord.sections()).isEmpty();
+    }
+
+    @Test
+    void createDataRecord_whenTitleAndDescriptionAndNoFields_shouldCallDatabase() {
+        CreateDataRecordRequest request = new CreateDataRecordRequest(
+                "Some title",
+                "Some description",
+                new ArrayList<>()
+        );
+
+        dataRecordService.createDataRecord(request);
+
+        verify(repository, times(1)).saveAndFlush(any());
+    }
+
+    @Test
+    void createDataRecord_whenTitleAndDescriptionAndMultipleFields_shouldReturnOrderedFields() {
+        CreateDataRecordRequest request = new CreateDataRecordRequest(
+                "Some title",
+                "Some description",
+                List.of(
+                        new FieldInfo("Name 3", "Value 3"),
+                        new FieldInfo("Name 1", "Value 1"),
+                        new FieldInfo("Name 2", "Value 2")
+                )
+        );
+
+        DataRecordDetail actualDataRecord = dataRecordService.createDataRecord(request);
+
+        assertThat(actualDataRecord).isNotNull();
+        assertThat(actualDataRecord.title()).isEqualTo("Some title");
+        assertThat(actualDataRecord.description()).isEqualTo("Some description");
+        assertThat(actualDataRecord.sections()).isNotNull();
+        assertThat(actualDataRecord.sections()).isEmpty();
+        assertThat(actualDataRecord.fields()).isNotNull();
+        assertThat(actualDataRecord.fields()).hasSize(3);
+
+        assertThat(actualDataRecord.fields()).element(0).satisfies(field -> {
+            assertThat(field.name()).isEqualTo("Name 1");
+            assertThat(field.value()).isEqualTo("Value 1");
+        });
+
+        assertThat(actualDataRecord.fields()).element(1).satisfies(field -> {
+            assertThat(field.name()).isEqualTo("Name 2");
+            assertThat(field.value()).isEqualTo("Value 2");
+        });
+
+        assertThat(actualDataRecord.fields()).element(2).satisfies(field -> {
+            assertThat(field.name()).isEqualTo("Name 3");
+            assertThat(field.value()).isEqualTo("Value 3");
+        });
+    }
+
     private static DataRecord createDataRecord(int id, String title, String description, List<Field> fields, List<Section> sections) {
         DataRecord dataRecord = new DataRecord();
         dataRecord.setId(id);
@@ -179,6 +252,7 @@ class DataRecordServiceTests {
         dataRecord.setDescription(description);
         dataRecord.setFields(fields);
         dataRecord.setSections(sections);
+
         return dataRecord;
     }
 

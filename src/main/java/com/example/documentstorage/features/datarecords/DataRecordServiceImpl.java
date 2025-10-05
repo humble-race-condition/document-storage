@@ -115,6 +115,7 @@ public class DataRecordServiceImpl implements DataRecordService {
 
         List<FieldDetail> fieldDetails = record.getFields().stream()
                 .map(f -> new FieldDetail(f.getId(), f.getName(), f.getValue()))
+                .sorted(Comparator.comparing(FieldDetail::name))
                 .toList();
 
         DataRecordDetail dataRecordDetail = DataRecordDetail
