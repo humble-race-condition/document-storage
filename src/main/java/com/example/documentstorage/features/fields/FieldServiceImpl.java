@@ -74,7 +74,7 @@ public class FieldServiceImpl implements FieldService {
         //one field of the same name can be added to a specific data record
         for (String fieldName : request.fields()) {
             dataRecord.getFields().stream()
-                    .filter(f -> f.getName().equals(fieldName))
+                    .filter(f -> Objects.equals(f.getName(), fieldName))
                     .findFirst()
                     .ifPresent(dataRecord::removeField);
         }
