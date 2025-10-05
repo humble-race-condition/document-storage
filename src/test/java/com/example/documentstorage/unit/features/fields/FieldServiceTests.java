@@ -259,6 +259,51 @@ class FieldServiceTests {
     }
 
     @Test
+    void updateFields_whenAddingOneValidFieldWithExistingFields_shouldReturnOrderedFields() {
+        List<FieldInfo> fieldInfos = List.of(
+                new FieldInfo("Greater name", "Some value")
+        );
+        UpdateFieldsRequest request = new UpdateFieldsRequest(fieldInfos);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
+
+        Field secondExisting = new Field();
+        secondExisting.setName("Higher name");
+        secondExisting.setValue("Higher value");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.updateDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(3);
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 1");
+                    assertThat(field.value()).isEqualTo("Overridden Value");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Greater name");
+                    assertThat(field.value()).isEqualTo("Some value");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Higher name");
+                    assertThat(field.value()).isEqualTo("Higher value");
+                });
+    }
+
+    @Test
     void updateFields_whenAddingOneNewField_shouldStoreFieldInDatabase() {
         List<FieldInfo> fieldInfos = List.of(
                 new FieldInfo("Name 1", "Value 1")
@@ -385,6 +430,47 @@ class FieldServiceTests {
                 .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Existing 2");
                     assertThat(field.value()).isEqualTo("Existing value 2");
+                });
+    }
+
+    @Test
+    void removeDataRecordFields_whenRemovingOneValidFromDataRecordWithFields_shouldReturnOrderedFields() {
+        List<String> inputFields = List.of("Existing 1");
+        RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
+
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+
+        Field thridField = new Field();
+        secondExisting.setName("Existing 3");
+        secondExisting.setValue("Existing value 3");
+        dataRecord.setFields(new ArrayList<>(List.of(thridField, firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(2);
+
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 2");
+                    assertThat(field.value()).isEqualTo("Existing value 2");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 3");
+                    assertThat(field.value()).isEqualTo("Existing value 3");
                 });
     }
 
