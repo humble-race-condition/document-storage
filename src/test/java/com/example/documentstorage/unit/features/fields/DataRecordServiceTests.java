@@ -40,7 +40,7 @@ class DataRecordServiceTests {
 
         assertThatThrownBy(() -> dataRecordService.getDataRecordById(1))
                 .isInstanceOf(InvalidClientInputException.class)
-                .hasMessage("Key for message 'features.fields.on.update.datarecord.datarecord.not.found'");
+                .hasMessage("Key for message 'features.datarecords.on.datarecord.get.by.id.datarecord.not.found'");
 
         verify(repository, times(1)).findById(1);
     }
