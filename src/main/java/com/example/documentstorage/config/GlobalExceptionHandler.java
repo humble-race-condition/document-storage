@@ -24,6 +24,7 @@ public class GlobalExceptionHandler {
         this.localizationService = localizationService;
     }
 
+    //ToDo check what happens if a filter/handler interceptor throws
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleException(Exception ex) {
         logger.error("An unexpected error occurred", ex);
