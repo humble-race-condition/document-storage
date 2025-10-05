@@ -4,6 +4,7 @@ import com.example.documentstorage.entities.DataRecord;
 import com.example.documentstorage.entities.Field;
 import com.example.documentstorage.features.fields.FieldDataRecordRepository;
 import com.example.documentstorage.features.fields.FieldServiceImpl;
+import com.example.documentstorage.features.fields.requests.RemoveFieldsRequest;
 import com.example.documentstorage.features.fields.requests.UpdateFieldsRequest;
 import com.example.documentstorage.shared.base.exceptions.InvalidClientInputException;
 import com.example.documentstorage.shared.base.models.requests.FieldInfo;
@@ -275,32 +276,137 @@ class FieldServiceTests {
     }
 
     @Test
-    void removeFields_whenFieldNameIsEmpty_shouldReturnError() {
+    void removeDataRecordFields_whenRemovingTwoFieldsFromDataRecordWithNoFields_shouldReturnNoFields() {
+        List<String> inputFields = List.of("Name 1", "Name 2");
+        RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        dataRecord.setFields(new ArrayList<>());
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
 
+        DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(0);
     }
 
     @Test
-    void removeFields_whenRemovingTwoFieldsFromDataRecordWithNoFields_shouldReturnNoFields() {
+    void removeDataRecordFields_whenRemovingNoFieldsFromDataRecordWithFields_shouldReturnExistingFields() {
+        List<String> inputFields = List.of();
+        RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
 
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(2);
+
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 1");
+                    assertThat(field.value()).isEqualTo("Existing value 1");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 2");
+                    assertThat(field.value()).isEqualTo("Existing value 2");
+                });
     }
 
     @Test
-    void removeFields_whenRemovingNoFieldsFromDataRecordWithFields_shouldReturnExistingFields() {
+    void removeDataRecordFields_whenRemovingOneValidFieldsFromDataRecordWithFields_shouldRemoveOneField() {
+        List<String> inputFields = List.of("Existing 1");
+        RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
 
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(1);
+
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 2");
+                    assertThat(field.value()).isEqualTo("Existing value 2");
+                });
     }
 
     @Test
-    void removeFields_whenRemovingOneValidFieldsFromDataRecordWithFields_shouldRemoveOneField() {
+    void removeDataRecordFields_whenRemovingOneValidAndOneInvalidFieldsFromDataRecordWithFields_shouldRemoveOneField() {
+        List<String> inputFields = List.of("Existing 1", "Invalid field");
+        RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
+
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualResponse = fieldService.removeDataRecordFields(1, request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.fields()).isNotNull();
+        assertThat(actualResponse.fields()).hasSize(1);
+
+        assertThat(actualResponse.fields())
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Existing 2");
+                    assertThat(field.value()).isEqualTo("Existing value 2");
+                });
     }
 
     @Test
-    void removeFields_whenRemovingOneValidAndOneInvalidFieldsFromDataRecordWithFields_shouldRemoveOneField() {
+    void removeDataRecordFields_whenRemovingOneValidFieldFromDataRecordWithFields_shouldCallDatabase() {
+        List<String> inputFields = List.of("Existing 1");
+        RemoveFieldsRequest request = new RemoveFieldsRequest(inputFields);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setId(1);
+        Field firstExisting = new Field();
+        firstExisting.setName("Existing 1");
+        firstExisting.setValue("Existing value 1");
 
+        Field secondExisting = new Field();
+        secondExisting.setName("Existing 2");
+        secondExisting.setValue("Existing value 2");
+        dataRecord.setFields(new ArrayList<>(List.of(firstExisting, secondExisting)));
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        fieldService.removeDataRecordFields(1, request);
+
+        verify(repository, times(1)).findById(1);
+        verify(repository, times(1)).saveAndFlush(dataRecord);
     }
-
-    @Test
-    void removeFields_whenRemovingOneValidFieldFromDataRecordWithFields_shouldRemoveFieldFromDatabase() {
-
-    }
-
 }
