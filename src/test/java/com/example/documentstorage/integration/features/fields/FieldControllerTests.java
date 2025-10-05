@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -188,15 +188,17 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 1");
-                    assertThat(field.value()).isEqualTo("Value 1");
+                .element(0)
+                .satisfies(f -> {
+                    assertThat(f.name()).isEqualTo("Test 1");
+                    assertThat(f.value()).isEqualTo("Value 1");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Test 2");
-                    assertThat(field.value()).isEqualTo("Value 2");
+                .element(1)
+                .satisfies(f -> {
+                    assertThat(f.name()).isEqualTo("Test 2");
+                    assertThat(f.value()).isEqualTo("Value 2");
                 });
     }
 
@@ -229,31 +231,36 @@ class FieldControllerTests {
                 .hasSize(5);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("112233");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Beneficiary");
-                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(0)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Alpha");
                     assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("112233");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(3)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Test 1");
                     assertThat(field.value()).isEqualTo("Value 1");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(4)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Test 2");
                     assertThat(field.value()).isEqualTo("Value 2");
                 });
@@ -285,21 +292,24 @@ class FieldControllerTests {
                 .hasSize(3);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Beneficiary");
                     assertThat(field.value()).isEqualTo("TODOR GOGOV");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
                 });
     }
 
@@ -332,31 +342,34 @@ class FieldControllerTests {
                 .hasSize(4);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Beneficiary");
-                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
-                });
-
-        assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(0)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Alpha");
                     assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("OVERRIDDEN");
+                });
+
+        assertThat(actualResponse.fields())
+                .element(3)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Test 1");
                     assertThat(field.value()).isEqualTo("Value 1");
                 });
     }
 
-    //ToDo no transactional on tests - bugs can happen due to it.
     @Test
     void updateFields_whenAddingOneNewField_shouldStoreFieldInDatabase() throws Exception {
         List<FieldInfo> infos = List.of(
@@ -457,21 +470,24 @@ class FieldControllerTests {
                 .hasSize(3);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("112233");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
+                .element(1)
+                .satisfies(field -> {
                     assertThat(field.name()).isEqualTo("Beneficiary");
                     assertThat(field.value()).isEqualTo("TODOR GOGOV");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(2)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("112233");
                 });
     }
 
@@ -503,15 +519,17 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Beneficiary");
-                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Beneficiary");
+                    assertThat(field.value()).isEqualTo("TODOR GOGOV");
                 });
     }
 
@@ -545,15 +563,17 @@ class FieldControllerTests {
                 .hasSize(2);
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("IBAN");
-                    assertThat(field.value()).isEqualTo("112233");
+                .element(0)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("Alpha");
+                    assertThat(field.value()).isEqualTo("Beta");
                 });
 
         assertThat(actualResponse.fields())
-                .anySatisfy(field -> {
-                    assertThat(field.name()).isEqualTo("Alpha");
-                    assertThat(field.value()).isEqualTo("Beta");
+                .element(1)
+                .satisfies(field -> {
+                    assertThat(field.name()).isEqualTo("IBAN");
+                    assertThat(field.value()).isEqualTo("112233");
                 });
     }
 
