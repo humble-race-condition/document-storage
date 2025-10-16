@@ -6,6 +6,7 @@ import com.example.documentstorage.entities.Section;
 import com.example.documentstorage.features.datarecords.DataRecordRepository;
 import com.example.documentstorage.features.datarecords.DataRecordServiceImpl;
 import com.example.documentstorage.features.datarecords.requests.CreateDataRecordRequest;
+import com.example.documentstorage.features.datarecords.requests.UpdateDataRecordRequest;
 import com.example.documentstorage.shared.base.exceptions.InvalidClientInputException;
 import com.example.documentstorage.shared.base.models.requests.FieldInfo;
 import com.example.documentstorage.shared.base.models.responses.DataRecordDetail;
@@ -243,6 +244,66 @@ class DataRecordServiceTests {
             assertThat(field.name()).isEqualTo("Name 3");
             assertThat(field.value()).isEqualTo("Value 3");
         });
+    }
+
+    @Test
+    void updateDataRecord_whenInvalidDataRecordId_shouldThrowException() {
+        UpdateDataRecordRequest request = new UpdateDataRecordRequest(
+                "Some title",
+                "Some description"
+        );
+
+        assertThatThrownBy(() -> dataRecordService.updateDataRecord(1, request))
+                .isInstanceOf(InvalidClientInputException.class)
+                .hasMessage("Key for message 'features.datarecords.on.datarecord.update.datarecord.not.found'");
+
+        verify(repository, times(1)).findById(1);
+    }
+
+    @Test
+    void updateDataRecord_whenGivenTitleAndDescription_shouldUpdateDataRecord() {
+        UpdateDataRecordRequest request = new UpdateDataRecordRequest(
+                "Some title",
+                "Some description"
+        );
+
+        DataRecord dataRecord = createDataRecord(1,
+                "Actual title",
+                "Actual description",
+                new ArrayList<>(),
+                new ArrayList<>());
+
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        DataRecordDetail actualDataRecord = dataRecordService.updateDataRecord(1, request);
+
+        assertThat(actualDataRecord).isNotNull();
+        assertThat(actualDataRecord.title()).isEqualTo("Some title");
+        assertThat(actualDataRecord.description()).isEqualTo("Some description");
+        assertThat(actualDataRecord.fields()).isNotNull();
+        assertThat(actualDataRecord.fields()).isEmpty();
+        assertThat(actualDataRecord.sections()).isNotNull();
+        assertThat(actualDataRecord.sections()).isEmpty();
+    }
+
+    @Test
+    void updateDataRecord_whenValidRequest_shouldPersistInDatabase() {
+        UpdateDataRecordRequest request = new UpdateDataRecordRequest(
+                "Some title",
+                "Some description"
+        );
+
+        DataRecord dataRecord = createDataRecord(1,
+                "Actual title",
+                "Actual description",
+                new ArrayList<>(),
+                new ArrayList<>());
+
+        Mockito.when(repository.findById(1)).thenReturn(Optional.of(dataRecord));
+
+        dataRecordService.updateDataRecord(1, request);
+
+        verify(repository, times(1)).saveAndFlush(any());
     }
 
     private static DataRecord createDataRecord(int id, String title, String description, List<Field> fields, List<Section> sections) {
